@@ -1,255 +1,493 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Eficácia na Entrega</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="BI Eficácia na Entrega – Acompanhamento de Solicitações | Apisul" />
+  <title>Eficácia na Entrega | Apisul</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen">
-
-  <header class="bg-slate-900 text-white py-4 px-6 shadow-md flex justify-between items-center">
-    <div class="flex items-center space-x-3">
-      <span class="text-2xl">🚚</span>
-      <h1 class="text-xl font-bold tracking-wide">Eficácia na Entrega</h1>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon"><i class="bi bi-bar-chart-line-fill"></i></span>
+        <div class="logo-text">
+          <strong>Apisul</strong>
+          <span>Eficácia na Entrega</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Recolher menu">
+        <i class="bi bi-chevron-left"></i>
+      </button>
     </div>
-    <div id="statusConexao" class="text-xs bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full border border-amber-500/30">
-      Conectando à API...
+    <nav class="sidebar-nav">
+      <a href="#dashboard" class="nav-item active" data-section="dashboard">
+        <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+      </a>
+      <a href="#evolucao" class="nav-item" data-section="evolucao">
+        <i class="bi bi-graph-up"></i><span>Evolução</span>
+      </a>
+      <a href="#analises" class="nav-item" data-section="analises">
+        <i class="bi bi-pie-chart"></i><span>Análises</span>
+      </a>
+      <a href="#prazos" class="nav-item" data-section="prazos">
+        <i class="bi bi-clock-history"></i><span>Prazos</span>
+      </a>
+      <a href="#tabela" class="nav-item" data-section="tabela">
+        <i class="bi bi-table"></i><span>Detalhamento</span>
+      </a>
+      <a href="#fila" class="nav-item" data-section="fila">
+        <i class="bi bi-list-ol"></i><span>Fila</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="last-update" id="lastUpdate">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Atualizando...</span>
+      </div>
     </div>
-  </header>
+  </aside>
 
-  <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+  <!-- Main -->
+  <main class="main-content" id="mainContent">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn-icon mobile-menu" id="mobileMenu" aria-label="Menu">
+          <i class="bi bi-list"></i>
+        </button>
+        <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="filter-bar" id="filterBar">
+          <div class="filter-group">
+            <label for="filtroPeriodo">Período</label>
+            <select id="filtroPeriodo" class="form-select">
+              <option value="7">Últimos 7 dias</option>
+              <option value="15">Últimos 15 dias</option>
+              <option value="30" selected>Últimos 30 dias</option>
+              <option value="90">Últimos 90 dias</option>
+              <option value="all">Todo o período</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filtroTransportador">Transportador</label>
+            <select id="filtroTransportador" class="form-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filtroSolicitante">Solicitante</label>
+            <select id="filtroSolicitante" class="form-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filtroResponsavel">Responsável</label>
+            <select id="filtroResponsavel" class="form-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filtroStatus">Status</label>
+            <select id="filtroStatus" class="form-select">
+              <option value="">Todos</option>
+              <option value="Aberto">Aberto</option>
+              <option value="Em Andamento">Em Andamento</option>
+              <option value="Concluído">Concluído</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filtroTipo">Tipo</label>
+            <select id="filtroTipo" class="form-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-sm" id="btnAplicarFiltros">
+            <i class="bi bi-funnel"></i> Aplicar
+          </button>
+          <button class="btn btn-outline btn-sm" id="btnLimparFiltros" title="Limpar filtros">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btnRefresh" title="Atualizar dados">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+      </div>
+    </header>
 
-    <!-- FILTROS -->
-    <section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Transportadora</label>
-        <select id="filterTransportadora" onchange="aplicarFiltros()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="ALL">Todas as Transportadoras</option>
-        </select>
-      </div>
+    <!-- Content sections -->
+    <div class="content-wrapper">
+      <!-- ===== DASHBOARD ===== -->
+      <section id="section-dashboard" class="section active">
+        <!-- KPI Cards -->
+        <div class="kpi-grid" id="kpiGrid">
+          <div class="kpi-card">
+            <div class="kpi-icon bg-navy"><i class="bi bi-inbox-fill"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Total de Solicitações</span>
+              <strong class="kpi-value" id="kpiTotal">—</strong>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-blue"><i class="bi bi-folder2-open"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Abertas</span>
+              <strong class="kpi-value" id="kpiAbertas">—</strong>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-cyan"><i class="bi bi-arrow-repeat"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Em Andamento</span>
+              <strong class="kpi-value" id="kpiAndamento">—</strong>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-green"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Concluídas</span>
+              <strong class="kpi-value" id="kpiConcluidas">—</strong>
+            </div>
+          </div>
+          <div class="kpi-card alert">
+            <div class="kpi-icon bg-red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Vencidas</span>
+              <strong class="kpi-value" id="kpiVencidas">—</strong>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-indigo"><i class="bi bi-hourglass-split"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Tempo Médio Conclusão</span>
+              <strong class="kpi-value" id="kpiTempoMedio">—</strong>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-teal"><i class="bi bi-calendar-check"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">No Prazo</span>
+              <strong class="kpi-value" id="kpiNoPrazo">—</strong>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-orange"><i class="bi bi-calendar-x"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Fora do Prazo</span>
+              <strong class="kpi-value" id="kpiForaPrazo">—</strong>
+            </div>
+          </div>
+        </div>
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Responsável</label>
-        <select id="filterResponsavel" onchange="aplicarFiltros()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="ALL">Todos os Responsáveis</option>
-        </select>
-      </div>
+        <!-- Mini charts row -->
+        <div class="charts-row">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Evolução Diária</h3>
+              <span class="badge">Abertas × Concluídas × Backlog</span>
+            </div>
+            <div class="card-body">
+              <canvas id="chartEvolucao" height="220"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Status Atual</h3>
+            </div>
+            <div class="card-body chart-center">
+              <canvas id="chartStatus" height="220"></canvas>
+            </div>
+          </div>
+        </div>
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Buscar</label>
-        <input type="text" id="filterBusca" onkeyup="aplicarFiltros()" placeholder="Filtrar por texto..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-      </div>
-    </section>
+        <div class="charts-row">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Top Solicitantes</h3>
+            </div>
+            <div class="card-body">
+              <canvas id="chartSolicitantes" height="240"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Top Transportadores</h3>
+            </div>
+            <div class="card-body">
+              <canvas id="chartTransportadores" height="240"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <!-- CARDS KPIS -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total de Viagens</span>
-        <div id="kpiTotal" class="text-3xl font-extrabold text-slate-800 mt-2">0</div>
-      </div>
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Transportadoras</span>
-        <div id="kpiTransportadoras" class="text-3xl font-extrabold text-blue-600 mt-2">0</div>
-      </div>
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Responsáveis</span>
-        <div id="kpiResponsaveis" class="text-3xl font-extrabold text-emerald-600 mt-2">0</div>
-      </div>
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Média Diária</span>
-        <div id="kpiMediaDiaria" class="text-3xl font-extrabold text-amber-500 mt-2">0</div>
-      </div>
-    </section>
+      <!-- ===== EVOLUÇÃO ===== -->
+      <section id="section-evolucao" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Evolução Diária de Solicitações</h3>
+            <div class="card-actions">
+              <button class="btn btn-outline btn-sm" id="btnExportEvolucao">
+                <i class="bi bi-download"></i> Exportar
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="chartEvolucaoFull" height="320"></canvas>
+          </div>
+        </div>
+        <div class="charts-row mt-3">
+          <div class="card">
+            <div class="card-header"><h3>Backlog (Saldo em Aberto)</h3></div>
+            <div class="card-body">
+              <canvas id="chartBacklog" height="200"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Resumo do Período</h3></div>
+            <div class="card-body" id="resumoEvolucao">
+              <!-- preenchido via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <!-- GRÁFICOS -->
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 lg:col-span-2">
-        <h2 class="text-base font-bold text-slate-700 mb-4">Evolução de Viagens por Data</h2>
-        <div class="h-64"><canvas id="chartEvolucao"></canvas></div>
-      </div>
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-base font-bold text-slate-700 mb-4">Share por Transportadora</h2>
-        <div class="h-64 flex justify-center"><canvas id="chartShare"></canvas></div>
-      </div>
-    </section>
+      <!-- ===== ANÁLISES ===== -->
+      <section id="section-analises" class="section">
+        <div class="charts-row">
+          <div class="card">
+            <div class="card-header"><h3>Solicitações por Usuário</h3></div>
+            <div class="card-body">
+              <canvas id="chartUsuariosFull" height="300"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Solicitações por Transportador</h3></div>
+            <div class="card-body">
+              <canvas id="chartTransportadoresFull" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="charts-row mt-3">
+          <div class="card">
+            <div class="card-header"><h3>Por Tipo de Solicitação</h3></div>
+            <div class="card-body chart-center">
+              <canvas id="chartTipos" height="260"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Tempo Médio de Atendimento</h3></div>
+            <div class="card-body">
+              <div class="metric-grid" id="metricTempo">
+                <div class="metric-item">
+                  <span class="metric-label">Tempo Médio</span>
+                  <strong class="metric-value" id="tempoMedio">—</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Maior Tempo</span>
+                  <strong class="metric-value" id="tempoMax">—</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Menor Tempo</span>
+                  <strong class="metric-value" id="tempoMin">—</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Tempo Médio 1ª Análise</span>
+                  <strong class="metric-value" id="tempoPrimeiraAnalise">—</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <!-- TABELA -->
-    <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div class="p-5 border-b border-slate-100 flex justify-between items-center">
-        <h2 class="text-base font-bold text-slate-700">Registros Operacionais</h2>
-        <span id="tableCount" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">0 registros</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-sm">
-          <thead>
-            <tr class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 text-xs uppercase tracking-wider">
-              <th class="py-3 px-4">Carimbo Data/Hora</th>
-              <th class="py-3 px-4">Data da Viagem</th>
-              <th class="py-3 px-4">Transportadora</th>
-              <th class="py-3 px-4">Responsável</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-700">
-            <tr><td colspan="4" class="py-8 text-center text-slate-400">Carregando dados da API...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+      <!-- ===== PRAZOS ===== -->
+      <section id="section-prazos" class="section">
+        <div class="kpi-grid kpi-grid-4">
+          <div class="kpi-card">
+            <div class="kpi-icon bg-teal"><i class="bi bi-check2-circle"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">No Prazo</span>
+              <strong class="kpi-value" id="prazoNoPrazo">—</strong>
+              <span class="kpi-sub" id="prazoNoPrazoPct"></span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-red"><i class="bi bi-x-circle"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Atrasado</span>
+              <strong class="kpi-value" id="prazoAtrasado">—</strong>
+              <span class="kpi-sub" id="prazoAtrasadoPct"></span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-green"><i class="bi bi-lightning-charge"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Antecipado (&lt; 24h)</span>
+              <strong class="kpi-value" id="prazoAntecipado">—</strong>
+              <span class="kpi-sub" id="prazoAntecipadoPct"></span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-orange"><i class="bi bi-calendar-event"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Vencem Hoje</span>
+              <strong class="kpi-value" id="prazoVencemHoje">—</strong>
+            </div>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="card">
+            <div class="card-header"><h3>Cumprimento de Prazo</h3></div>
+            <div class="card-body chart-center">
+              <canvas id="chartPrazos" height="260"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Distribuição de Atraso (dias)</h3></div>
+            <div class="card-body">
+              <canvas id="chartAtraso" height="260"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== TABELA ===== -->
+      <section id="section-tabela" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Detalhamento de Solicitações</h3>
+            <div class="card-actions">
+              <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" id="tableSearch" placeholder="Pesquisar..." />
+              </div>
+              <button class="btn btn-outline btn-sm" id="btnExportCSV">
+                <i class="bi bi-filetype-csv"></i> CSV
+              </button>
+              <button class="btn btn-outline btn-sm" id="btnExportExcel">
+                <i class="bi bi-file-earmark-excel"></i> Excel
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-wrapper">
+              <table class="data-table" id="dataTable">
+                <thead>
+                  <tr>
+                    <th data-sort="numero">Nº</th>
+                    <th data-sort="dataAbertura">Abertura</th>
+                    <th data-sort="solicitante">Solicitante</th>
+                    <th data-sort="transportador">Transportador</th>
+                    <th data-sort="tipo">Tipo</th>
+                    <th data-sort="status">Status</th>
+                    <th data-sort="responsavel">Responsável</th>
+                    <th data-sort="dataPrimeiraAnalise">1ª Análise</th>
+                    <th data-sort="dataPrevista">Prevista</th>
+                    <th data-sort="dataConclusao">Conclusão</th>
+                    <th data-sort="tempoPrimeiraAnalise">T. 1ª Anál.</th>
+                    <th data-sort="tempoTotal">T. Total</th>
+                    <th data-sort="situacaoPrazo">Prazo</th>
+                    <th data-sort="posicaoFila">Pos. Fila</th>
+                    <th data-sort="qtdAfrente">À Frente</th>
+                    <th data-sort="filaAbertura">Fila Abert.</th>
+                    <th data-sort="observacoes">Observações</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                  <!-- rows via JS -->
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer">
+              <div class="table-info" id="tableInfo">Exibindo 0 de 0</div>
+              <div class="pagination" id="pagination"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== FILA ===== -->
+      <section id="section-fila" class="section">
+        <div class="kpi-grid kpi-grid-3">
+          <div class="kpi-card">
+            <div class="kpi-icon bg-navy"><i class="bi bi-list-ol"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Total na Fila</span>
+              <strong class="kpi-value" id="filaTotal">—</strong>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-blue"><i class="bi bi-hourglass-top"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Aguardando 1ª Análise</span>
+              <strong class="kpi-value" id="filaAguardando">—</strong>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-cyan"><i class="bi bi-person-check"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Com Prazo Definido</span>
+              <strong class="kpi-value" id="filaComPrazo">—</strong>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Fila de Atendimento (ordem de abertura)</h3>
+            <span class="badge badge-info" id="filaBadge">0 pendentes</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-wrapper">
+              <table class="data-table" id="filaTable">
+                <thead>
+                  <tr>
+                    <th>Posição</th>
+                    <th>Nº</th>
+                    <th>Abertura</th>
+                    <th>Solicitante</th>
+                    <th>Transportador</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>À Frente</th>
+                    <th>Data Prevista</th>
+                    <th>Fila na Abertura</th>
+                    <th>Situação</th>
+                  </tr>
+                </thead>
+                <tbody id="filaBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyD0071pyIgbbg0rYCk6hlR6Y8WluFLVVVlT48Cfd3l9B9iCgFu4jGDXGxOyjwLMkZS6A/exec";
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
 
-    let rawData = [];
-    let chartEvolucaoInstance = null;
-    let chartShareInstance = null;
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Carregando dados...</p>
+  </div>
 
-    document.addEventListener("DOMContentLoaded", carregarDadosAPI);
-
-    function carregarDadosAPI() {
-      const statusEl = document.getElementById('statusConexao');
-      
-      fetch(API_URL, {
-        method: "GET",
-        redirect: "follow"
-      })
-      .then(response => {
-        if (!response.ok) throw new Error("Falha na resposta da API");
-        return response.json();
-      })
-      .then(json => {
-        if (json.status === "sucesso") {
-          rawData = json.dados;
-          statusEl.innerText = `Conectado (${rawData.length} registros)`;
-          statusEl.className = "text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30";
-
-          popularFiltros(rawData);
-          aplicarFiltros();
-        } else {
-          throw new Error(json.mensagem || "Erro no retorno da API");
-        }
-      })
-      .catch(err => {
-        console.error("Erro CORS/API:", err);
-        statusEl.innerText = "Erro ao carregar dados";
-        statusEl.className = "text-xs bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30";
-      });
-    }
-
-    function popularFiltros(data) {
-      const transportadoras = [...new Set(data.map(d => d.transportadora))].filter(Boolean).sort();
-      const responsaveis = [...new Set(data.map(d => d.responsavel))].filter(Boolean).sort();
-
-      const selectTransp = document.getElementById('filterTransportadora');
-      selectTransp.innerHTML = '<option value="ALL">Todas as Transportadoras</option>';
-      transportadoras.forEach(t => selectTransp.innerHTML += `<option value="${t}">${t}</option>`);
-
-      const selectResp = document.getElementById('filterResponsavel');
-      selectResp.innerHTML = '<option value="ALL">Todos os Responsáveis</option>';
-      responsaveis.forEach(r => selectResp.innerHTML += `<option value="${r}">${r}</option>`);
-    }
-
-    function aplicarFiltros() {
-      const transpVal = document.getElementById('filterTransportadora').value;
-      const respVal = document.getElementById('filterResponsavel').value;
-      const buscaVal = document.getElementById('filterBusca').value.toLowerCase();
-
-      const dadosFiltrados = rawData.filter(item => {
-        const matchTransp = transpVal === "ALL" || item.transportadora === transpVal;
-        const matchResp = respVal === "ALL" || item.responsavel === respVal;
-        const matchBusca = !buscaVal || 
-          item.transportadora.toLowerCase().includes(buscaVal) ||
-          item.responsavel.toLowerCase().includes(buscaVal) ||
-          item.dataViagem.includes(buscaVal);
-
-        return matchTransp && matchResp && matchBusca;
-      });
-
-      atualizarKPIs(dadosFiltrados);
-      renderizarTabela(dadosFiltrados);
-      renderizarGraficos(dadosFiltrados);
-    }
-
-    function atualizarKPIs(data) {
-      document.getElementById('kpiTotal').innerText = data.length;
-      document.getElementById('kpiTransportadoras').innerText = new Set(data.map(d => d.transportadora)).size;
-      document.getElementById('kpiResponsaveis').innerText = new Set(data.map(d => d.responsavel)).size;
-
-      const datasUnicas = new Set(data.map(d => d.dataViagem)).size;
-      document.getElementById('kpiMediaDiaria').innerText = datasUnicas > 0 ? (data.length / datasUnicas).toFixed(1) : 0;
-    }
-
-    function renderizarTabela(data) {
-      const tbody = document.getElementById('tableBody');
-      document.getElementById('tableCount').innerText = `${data.length} registros`;
-      tbody.innerHTML = '';
-
-      if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400">Nenhum registro encontrado</td></tr>`;
-        return;
-      }
-
-      data.forEach(item => {
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-50 transition-colors">
-            <td class="py-3 px-4 font-mono text-xs text-slate-500">${item.timestamp}</td>
-            <td class="py-3 px-4 font-medium">${item.dataViagem}</td>
-            <td class="py-3 px-4"><span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700">${item.transportadora}</span></td>
-            <td class="py-3 px-4">${item.responsavel}</td>
-          </tr>
-        `;
-      });
-    }
-
-    function renderizarGraficos(data) {
-      const datasAgrupadas = {};
-      data.forEach(d => { datasAgrupadas[d.dataViagem] = (datasAgrupadas[d.dataViagem] || 0) + 1; });
-
-      const labelsEvolucao = Object.keys(datasAgrupadas).sort();
-      const valoresEvolucao = labelsEvolucao.map(k => datasAgrupadas[k]);
-
-      if (chartEvolucaoInstance) chartEvolucaoInstance.destroy();
-
-      const ctxEvolucao = document.getElementById('chartEvolucao').getContext('2d');
-      chartEvolucaoInstance = new Chart(ctxEvolucao, {
-        type: 'line',
-        data: {
-          labels: labelsEvolucao,
-          datasets: [{
-            label: 'Viagens',
-            data: valoresEvolucao,
-            borderColor: '#2563EB',
-            backgroundColor: 'rgba(37, 99, 235, 0.1)',
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-
-      const transpAgrupadas = {};
-      data.forEach(d => { transpAgrupadas[d.transportadora] = (transpAgrupadas[d.transportadora] || 0) + 1; });
-
-      const labelsShare = Object.keys(transpAgrupadas);
-      const valoresShare = labelsShare.map(k => transpAgrupadas[k]);
-
-      if (chartShareInstance) chartShareInstance.destroy();
-
-      const ctxShare = document.getElementById('chartShare').getContext('2d');
-      chartShareInstance = new Chart(ctxShare, {
-        type: 'doughnut',
-        data: {
-          labels: labelsShare,
-          datasets: [{
-            data: valoresShare,
-            backgroundColor: ['#10B981', '#2563EB', '#F59E0B', '#6366F1', '#EC4899']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
-  </script>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/data-service.js"></script>
+  <script src="js/calculations.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
