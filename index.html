@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Eficácia na Entrega</title>
-  <!-- Tailwind CSS & Chart.js CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen">
 
-  <!-- HEADER -->
   <header class="bg-slate-900 text-white py-4 px-6 shadow-md flex justify-between items-center">
     <div class="flex items-center space-x-3">
       <span class="text-2xl">🚚</span>
@@ -102,7 +100,6 @@
   </main>
 
   <script>
-    // URL da sua implantação no Apps Script
     const API_URL = "https://script.google.com/macros/s/AKfycbyD0071pyIgbbg0rYCk6hlR6Y8WluFLVVVlT48Cfd3l9B9iCgFu4jGDXGxOyjwLMkZS6A/exec";
 
     let rawData = [];
@@ -111,12 +108,18 @@
 
     document.addEventListener("DOMContentLoaded", carregarDadosAPI);
 
-    async function carregarDadosAPI() {
+    function carregarDadosAPI() {
       const statusEl = document.getElementById('statusConexao');
-      try {
-        const response = await fetch(API_URL);
-        const json = await response.json();
-
+      
+      fetch(API_URL, {
+        method: "GET",
+        redirect: "follow"
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("Falha na resposta da API");
+        return response.json();
+      })
+      .then(json => {
         if (json.status === "sucesso") {
           rawData = json.dados;
           statusEl.innerText = `Conectado (${rawData.length} registros)`;
@@ -125,13 +128,14 @@
           popularFiltros(rawData);
           aplicarFiltros();
         } else {
-          throw new Error(json.mensagem || "Erro retornado pela API");
+          throw new Error(json.mensagem || "Erro no retorno da API");
         }
-      } catch (err) {
-        console.error(err);
+      })
+      .catch(err => {
+        console.error("Erro CORS/API:", err);
         statusEl.innerText = "Erro ao carregar dados";
         statusEl.className = "text-xs bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30";
-      }
+      });
     }
 
     function popularFiltros(data) {
