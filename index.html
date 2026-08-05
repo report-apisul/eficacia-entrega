@@ -67,7 +67,13 @@ body {
 /* ---------------- Sidebar ---------------- */
 .sidebar {
   width: var(--sidebar-w);
-  background: var(--navy);
+  background-color: var(--navy);
+  background-image:
+    linear-gradient(rgba(11,31,56,.88), rgba(11,31,56,.88)),
+    url('https://raw.githubusercontent.com/report-apisul/eficacia-entrega/refs/heads/main/Eficienciaentrega.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -94,6 +100,9 @@ body {
   display: grid; place-items: center;
   font-size: 1.15rem;
   box-shadow: 0 4px 14px rgba(37,99,235,.45);
+}
+.logo-icon img {
+  width: 24px; height: 24px; object-fit: contain;
 }
 .logo-text { display: flex; flex-direction: column; line-height: 1.15; transition: opacity var(--transition); white-space: nowrap; }
 .logo-text strong { font-size: 1rem; font-weight: 800; letter-spacing: -.01em; }
@@ -128,11 +137,23 @@ body {
 
 /* ---------------- Main ---------------- */
 .main-content {
-  flex: 1; margin-left: var(--sidebar-w);
-  transition: margin-left var(--transition);
-  min-height: 100vh; display: flex; flex-direction: column;
+  flex: 0 0 calc(100vw - var(--sidebar-w));
+  width: calc(100vw - var(--sidebar-w));
+  max-width: calc(100vw - var(--sidebar-w));
+  min-width: 0;
+  margin-left: var(--sidebar-w);
+  transition: margin-left var(--transition), width var(--transition), max-width var(--transition), flex-basis var(--transition);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
 }
-.sidebar.collapsed ~ .main-content { margin-left: var(--sidebar-collapsed); }
+.sidebar.collapsed ~ .main-content {
+  margin-left: var(--sidebar-collapsed);
+  flex-basis: calc(100vw - var(--sidebar-collapsed));
+  width: calc(100vw - var(--sidebar-collapsed));
+  max-width: calc(100vw - var(--sidebar-collapsed));
+}
 
 /* ---------------- Topbar ---------------- */
 .topbar {
@@ -146,7 +167,16 @@ body {
 .topbar-left { display: flex; align-items: center; gap: .8rem; min-width: 0; }
 .page-title { font-size: 1.25rem; font-weight: 800; letter-spacing: -.02em; color: var(--navy); }
 .page-sub { font-size: .74rem; color: var(--muted-2); font-weight: 500; }
-.topbar-actions { display: flex; align-items: center; gap: .5rem; }
+.topbar-actions {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.brand-mondelez {
+  height:20px;
+  width:auto;
+  object-fit:contain;
+} display: flex; align-items: center; gap: .5rem; }
 
 .btn {
   display: inline-flex; align-items: center; gap: .4rem;
@@ -226,8 +256,15 @@ body {
 .error-banner .error-msg { flex: 1; font-size: .88rem; }
 
 /* ---------------- Content ---------------- */
-.content-wrapper { padding: 1.4rem 1.5rem 2rem; flex: 1; }
-.section { display: none; }
+.content-wrapper {
+  padding: 1.4rem 1.5rem 2rem;
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+.section { display: none; width: 100%; max-width: 100%; min-width: 0; }
 .section.active { display: block; animation: fadeIn .26s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -255,7 +292,7 @@ body {
 .bg-teal{background:var(--cyan)}.bg-orange{background:var(--amber)}
 
 /* ---------------- Cards ---------------- */
-.card { background: var(--surface); border-radius: var(--r); border: 1px solid var(--line); box-shadow: var(--shadow-sm); overflow: hidden; }
+.card { background: var(--surface); border-radius: var(--r); border: 1px solid var(--line); box-shadow: var(--shadow-sm); overflow: hidden; width: 100%; max-width: 100%; min-width: 0; }
 .card-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); gap: .7rem; flex-wrap: wrap; }
 .card-header h3 { font-size: .92rem; font-weight: 700; color: var(--navy); letter-spacing: -.01em; }
 .card-actions { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; }
@@ -290,8 +327,16 @@ body {
 .prazo-Vencido { background: #fee2e2; color: var(--red); font-weight: 700; }
 
 /* ---------------- Table ---------------- */
-.table-wrapper { overflow-x: auto; max-height: 64vh; }
-.data-table { width: 100%; border-collapse: collapse; font-size: .76rem; }
+.table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 64vh;
+  display: block;
+}
+.data-table { width: max-content; border-collapse: collapse; font-size: .76rem; }
 .data-table thead { position: sticky; top: 0; z-index: 10; background: var(--navy); color: #fff; }
 .data-table th { padding: .7rem .75rem; text-align: left; font-weight: 600; white-space: nowrap; cursor: pointer; user-select: none; transition: background var(--transition); }
 .data-table th:hover { background: var(--navy-2); }
@@ -300,11 +345,74 @@ body {
 .data-table tbody tr { border-bottom: 1px solid var(--line); transition: background var(--transition); }
 .data-table tbody tr:hover { background: #f6f8fc; }
 .data-table tbody tr.row-alert { background: #fff6f6; }
-.data-table td { padding: .58rem .75rem; white-space: nowrap; color: var(--ink); max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+.data-table td { padding: .58rem .75rem; white-space: nowrap; color: var(--ink); overflow: hidden; text-overflow: ellipsis; }
 .hint { color: var(--muted-2); font-size: .7rem; }
 
-.table-footer { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1.2rem; border-top: 1px solid var(--line); font-size: .78rem; color: var(--muted); flex-wrap: wrap; gap: .5rem; }
-.pagination { display: flex; gap: .25rem; }
+/* Detalhamento: o container permanece dentro da tela e a tabela é mais larga que ele. */
+#section-tabela,
+#section-tabela .card,
+#section-tabela .card-body { width: 100%; max-width: 100%; min-width: 0; }
+#section-tabela .table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: scroll;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+  scrollbar-width: auto;
+  scrollbar-color: #64748b #e8edf3;
+  border-bottom: 1px solid var(--line);
+}
+#section-tabela .table-wrapper::-webkit-scrollbar { height: 14px; width: 10px; }
+#section-tabela .table-wrapper::-webkit-scrollbar-track { background: #e8edf3; border-radius: 999px; }
+#section-tabela .table-wrapper::-webkit-scrollbar-thumb { background: #64748b; border: 3px solid #e8edf3; border-radius: 999px; }
+#section-tabela .table-wrapper::-webkit-scrollbar-thumb:hover { background: var(--navy); }
+#section-tabela .data-table {
+  width: 2648px !important;
+  min-width: 2648px !important;
+  max-width: none !important;
+  table-layout: fixed;
+  white-space: nowrap;
+}
+#dataTable th, #dataTable td { max-width: none; }
+#dataTable th:nth-child(1),  #dataTable td:nth-child(1)  { width: 78px; }
+#dataTable th:nth-child(2),  #dataTable td:nth-child(2)  { width: 145px; }
+#dataTable th:nth-child(3),  #dataTable td:nth-child(3)  { width: 190px; }
+#dataTable th:nth-child(4),  #dataTable td:nth-child(4)  { width: 220px; }
+#dataTable th:nth-child(5),  #dataTable td:nth-child(5)  { width: 105px; }
+#dataTable th:nth-child(6),  #dataTable td:nth-child(6)  { width: 130px; }
+#dataTable th:nth-child(7),  #dataTable td:nth-child(7)  { width: 175px; }
+#dataTable th:nth-child(8),  #dataTable td:nth-child(8)  { width: 145px; }
+#dataTable th:nth-child(9),  #dataTable td:nth-child(9)  { width: 165px; }
+#dataTable th:nth-child(10), #dataTable td:nth-child(10) { width: 145px; }
+#dataTable th:nth-child(11), #dataTable td:nth-child(11) { width: 165px; }
+#dataTable th:nth-child(12), #dataTable td:nth-child(12) { width: 115px; }
+#dataTable th:nth-child(13), #dataTable td:nth-child(13) { width: 115px; }
+#dataTable th:nth-child(14), #dataTable td:nth-child(14) { width: 150px; }
+#dataTable th:nth-child(15), #dataTable td:nth-child(15) { width: 95px; }
+#dataTable th:nth-child(16), #dataTable td:nth-child(16) { width: 95px; }
+#dataTable th:nth-child(17), #dataTable td:nth-child(17) { width: 115px; }
+#dataTable th:nth-child(18), #dataTable td:nth-child(18) { width: 300px; }
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: .75rem 1.2rem;
+  border-top: 1px solid var(--line);
+  font-size: .78rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+.table-footer-controls { display: flex; align-items: center; justify-content: flex-end; gap: .55rem; flex-wrap: wrap; min-width: 0; }
+.table-footer-controls label { white-space: nowrap; font-weight: 600; }
+.table-footer-controls .form-select { min-width: 82px; }
+.pagination { display: flex; gap: .25rem; flex-wrap: wrap; }
 .pagination button { min-width: 31px; height: 31px; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; cursor: pointer; font-size: .74rem; font-weight: 600; color: var(--muted); transition: all var(--transition); }
 .pagination button:hover:not(:disabled) { border-color: var(--navy); color: var(--navy); }
 .pagination button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
@@ -334,15 +442,31 @@ body {
 .empty-state i { font-size: 2.2rem; margin-bottom: .6rem; display: block; }
 .empty-state p { font-size: .88rem; }
 
-/* Full-width table override (Detalhamento) */
-#section-tabela .data-table { min-width: 1700px; white-space: nowrap; }
+
+/* ---------------- Filtro de data específica ---------------- */
+.filter-date-group { min-width: 154px; }
+.date-filter-wrap { position: relative; display: flex; align-items: center; }
+.date-filter-input { min-width: 154px; padding-right: 2.15rem; color-scheme: light; appearance: auto; background: var(--surface); }
+.date-filter-input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .7; }
+.date-filter-clear {
+  position: absolute; right: 1.8rem; width: 20px; height: 20px; border: 0; border-radius: 50%;
+  background: #e9eef7; color: var(--navy); display: grid; place-items: center; cursor: pointer; padding: 0;
+}
+.date-filter-clear:hover { background: #dbe5f4; }
+.date-filter-clear.hidden { display: none; }
+.chart-box canvas { touch-action: manipulation; }
 
 /* ---------------- Responsive ---------------- */
 @media (max-width: 1200px) { .charts-row { grid-template-columns: 1fr; } .kpi-grid-4 { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 992px) {
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
-  .main-content { margin-left: 0 !important; }
+  .main-content {
+    margin-left: 0 !important;
+    flex-basis: 100vw !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
   .mobile-menu { display: grid; }
 }
 @media (max-width: 640px) {
@@ -357,7 +481,7 @@ body {
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="logo">
-        <div class="logo-icon"><i class="bi bi-graph-up-arrow"></i></div>
+        <div class="logo-icon"><img src="https://raw.githubusercontent.com/repositorio-apisul/apisul/refs/heads/main/logo-piscina-branca.png" alt="Apisul"></div>
         <div class="logo-text"><strong>Apisul</strong><span>Eficácia na Entrega</span></div>
       </div>
       <button class="sidebar-toggle" id="sidebarToggle" aria-label="Recolher menu"><i class="bi bi-chevron-left"></i></button>
@@ -386,6 +510,7 @@ body {
           </div>
         </div>
         <div class="topbar-actions">
+          <img class="brand-mondelez" src="https://raw.githubusercontent.com/repositorio-apisul/mondelez/refs/heads/main/Logo%20Mondelez%20Roxo.png" alt="Mondelez">
           <button class="btn btn-icon" id="btnRefresh" title="Atualizar dados"><i class="bi bi-arrow-clockwise"></i></button>
         </div>
       </div>
@@ -400,6 +525,13 @@ body {
             <option value="90">Últimos 90 dias</option>
             <option value="all">Todo o período</option>
           </select>
+        </div>
+        <div class="filter-group filter-date-group">
+          <label>Data específica</label>
+          <div class="date-filter-wrap">
+            <input class="form-select date-filter-input" id="filtroDataExata" type="date" aria-label="Filtrar por uma data específica">
+            <button class="date-filter-clear hidden" id="btnClearDate" type="button" title="Limpar data específica" aria-label="Limpar data específica"><i class="bi bi-x"></i></button>
+          </div>
         </div>
         <div class="filter-group"><label>Transportador</label><select class="form-select" id="filtroTransportador"><option value="">Todos</option></select></div>
         <div class="filter-group"><label>Solicitante</label><select class="form-select" id="filtroSolicitante"><option value="">Todos</option></select></div>
@@ -577,7 +709,20 @@ body {
                 <tbody id="tableBody"></tbody>
               </table>
             </div>
-            <div class="table-footer"><span id="tableInfo">Exibindo 0 de 0</span><div class="pagination" id="pagination"></div></div>
+            <div class="table-footer">
+              <span id="tableInfo">Exibindo 0 de 0</span>
+              <div class="table-footer-controls">
+                <label for="pageSizeSelect">Registros por página:</label>
+                <select id="pageSizeSelect" class="form-select form-select-sm" aria-label="Quantidade de registros por página">
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100" selected>100</option>
+                  <option value="250">250</option>
+                  <option value="99999">Todos</option>
+                </select>
+                <div class="pagination" id="pagination" aria-label="Paginação da tabela"></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -611,7 +756,7 @@ const CONFIG = {
   FETCH_TIMEOUT_MS: 20000,
   DIAS_PRAZO_PADRAO: 5,
   ANTECIPADO_HORAS: 24,
-  PAGE_SIZE: 20,
+  PAGE_SIZE: 99999,
   COLUMN_MAP: {
     numero:'Codigo da Análise', dataAbertura:'Carimbo de data/hora', dataViagem:'Data que a viagem ocorreu?',
     solicitante:'Nome do solicitante', transportador:'Qual transportadora?', responsavel:'Responsável Mondelez pela Solicitação?',
@@ -784,7 +929,13 @@ const Calculations = (() => {
   function isVencida(s){ if(s.status==='Concluído') return false; if(!s.dataPrevistaEfetiva) return false; return now()>s.dataPrevistaEfetiva; }
   function applyFilters(items,f={}){
     let r=items;
-    if(f.periodo&&f.periodo!=='all'){ const cutoff=Utils.addDays(Utils.startOfDay(now()),-Number(f.periodo)); r=r.filter(s=>s.dataAbertura&&s.dataAbertura>=cutoff); }
+    // A data específica tem prioridade sobre o período macro. Ao limpar a data, o período anterior volta a valer.
+    if(f.dataExata){
+      r=r.filter(s=>Utils.dateKey(s.dataAbertura)===f.dataExata || Utils.dateKey(s.dataConclusao)===f.dataExata);
+    } else if(f.periodo&&f.periodo!=='all'){
+      const cutoff=Utils.addDays(Utils.startOfDay(now()),-Number(f.periodo));
+      r=r.filter(s=>s.dataAbertura&&s.dataAbertura>=cutoff);
+    }
     if(f.transportador) r=r.filter(s=>s.transportador===f.transportador);
     if(f.solicitante) r=r.filter(s=>s.solicitante===f.solicitante);
     if(f.responsavel) r=r.filter(s=>s.responsavel===f.responsavel);
@@ -878,18 +1029,62 @@ const Charts = (() => {
   function getCtx(id){ const c=document.getElementById(id); if(!c) return null; destroy(id); return c.getContext('2d'); }
   function withField(inst,field){ if(inst) inst.$crossFilterField=field; return inst; }
 
+  function resolveSeriesIndex(event,chart,series){
+    if(!event||!chart||!series?.length) return -1;
+    const xScale=chart.scales?.x;
+    if(!xScale) return -1;
+    const x=Number(event.x);
+    const y=Number(event.y);
+    if(!Number.isFinite(x)||!Number.isFinite(y)) return -1;
+
+    // Aceita cliques no ponto, na linha, na área vertical do dia e no rótulo do eixo X.
+    const left=Math.min(xScale.left,chart.chartArea?.left??xScale.left)-14;
+    const right=Math.max(xScale.right,chart.chartArea?.right??xScale.right)+14;
+    const top=(chart.chartArea?.top??xScale.top)-10;
+    const bottom=(xScale.bottom??chart.height)+10;
+    if(x<left||x>right||y<top||y>bottom) return -1;
+
+    let nearest=0, distance=Infinity;
+    for(let i=0;i<series.length;i++){
+      const px=xScale.getPixelForValue(i);
+      const d=Math.abs(px-x);
+      if(d<distance){ distance=d; nearest=i; }
+    }
+    const step=series.length>1?Math.abs(xScale.getPixelForValue(1)-xScale.getPixelForValue(0)):42;
+    return distance<=Math.max(18,step*.58)?nearest:-1;
+  }
+
   function evolucao(id,series){
     const ctx=getCtx(id); if(!ctx) return;
+    const selectedDate=window.BI_CrossFilter?.get('dataExata')||'';
+    const pointRadius=series.map(s=>s.key===selectedDate?7:3);
+    const pointBorderWidth=series.map(s=>s.key===selectedDate?3:1);
     instances[id]=new Chart(ctx,{ type:'line', data:{ labels:series.map(s=>s.label), datasets:[
-      { label:'Abertas', data:series.map(s=>s.abertas), borderColor:C.blue, backgroundColor:'rgba(37,99,235,.1)', fill:true, tension:.35, pointRadius:2, pointHoverRadius:6, borderWidth:2.5 },
-      { label:'Concluídas', data:series.map(s=>s.concluidas), borderColor:C.green, backgroundColor:'rgba(5,150,105,.1)', fill:true, tension:.35, pointRadius:2, pointHoverRadius:6, borderWidth:2.5 },
-      { label:'Backlog', data:series.map(s=>s.backlog), borderColor:C.orange, backgroundColor:'transparent', borderDash:[6,4], tension:.35, pointRadius:1, pointHoverRadius:5, borderWidth:2 }
-    ]}, options:{ ...base, scales:{ x:{ grid:{display:false}, ticks:{font:{size:10},color:'#9aa1ac',maxRotation:0} }, y:{ beginAtZero:true, grid:{color:'#eef1f5'}, ticks:{font:{size:10},color:'#9aa1ac',precision:0} } } } });
+      { label:'Abertas', data:series.map(s=>s.abertas), borderColor:C.blue, backgroundColor:'rgba(37,99,235,.1)', fill:true, tension:.35, pointRadius, pointBorderWidth, pointHitRadius:24, pointHoverRadius:7, borderWidth:2.5 },
+      { label:'Concluídas', data:series.map(s=>s.concluidas), borderColor:C.green, backgroundColor:'rgba(5,150,105,.1)', fill:true, tension:.35, pointRadius, pointBorderWidth, pointHitRadius:24, pointHoverRadius:7, borderWidth:2.5 },
+      { label:'Backlog', data:series.map(s=>s.backlog), borderColor:C.orange, backgroundColor:'transparent', borderDash:[6,4], tension:.35, pointRadius:series.map(s=>s.key===selectedDate?7:2), pointBorderWidth, pointHitRadius:24, pointHoverRadius:7, borderWidth:2 }
+    ]}, options:{ ...base,
+      onHover:(event,elements,chart)=>{
+        const idx=resolveSeriesIndex(event,chart,series);
+        chart.canvas.style.cursor=idx>=0?'pointer':'default';
+      },
+      onClick:(event,elements,chart)=>{
+        const idx=resolveSeriesIndex(event,chart,series);
+        const key=idx>=0?series[idx]?.key:null;
+        if(key&&window.BI_CrossFilter) window.BI_CrossFilter.apply('dataExata',key);
+      },
+      plugins:{ ...base.plugins, tooltip:{ ...base.plugins.tooltip, callbacks:{ footer:()=> 'Clique no ponto ou na data para filtrar este dia' } } },
+      scales:{ x:{ grid:{display:false}, ticks:{font:{size:10},color:'#9aa1ac',maxRotation:0} }, y:{ beginAtZero:true, grid:{color:'#eef1f5'}, ticks:{font:{size:10},color:'#9aa1ac',precision:0} } } } });
   }
   function backlog(id,series){
     const ctx=getCtx(id); if(!ctx) return;
-    instances[id]=new Chart(ctx,{ type:'bar', data:{ labels:series.map(s=>s.label), datasets:[{ label:'Backlog', data:series.map(s=>s.backlog), backgroundColor:series.map((_,i)=>i===series.length-1?C.orange:'rgba(217,119,6,.5)'), borderRadius:5, barPercentage:.72 }] },
-      options:{ ...base, plugins:{...base.plugins,legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{font:{size:10},color:'#9aa1ac'}}, y:{beginAtZero:true,grid:{color:'#eef1f5'},ticks:{font:{size:10},color:'#9aa1ac',precision:0}} } } });
+    const selectedDate=window.BI_CrossFilter?.get('dataExata')||'';
+    instances[id]=new Chart(ctx,{ type:'bar', data:{ labels:series.map(s=>s.label), datasets:[{ label:'Backlog', data:series.map(s=>s.backlog), backgroundColor:series.map((s,i)=>s.key===selectedDate?C.navy:(i===series.length-1?C.orange:'rgba(217,119,6,.5)')), borderRadius:5, barPercentage:.72 }] },
+      options:{ ...base,
+        onHover:(event,elements,chart)=>{ const idx=resolveSeriesIndex(event,chart,series); chart.canvas.style.cursor=idx>=0?'pointer':'default'; },
+        onClick:(event,elements,chart)=>{ const idx=resolveSeriesIndex(event,chart,series); const key=idx>=0?series[idx]?.key:null; if(key&&window.BI_CrossFilter) window.BI_CrossFilter.apply('dataExata',key); },
+        plugins:{...base.plugins,legend:{display:false},tooltip:{...base.plugins.tooltip,callbacks:{footer:()=> 'Clique para filtrar este dia'}}},
+        scales:{ x:{grid:{display:false},ticks:{font:{size:10},color:'#9aa1ac'}}, y:{beginAtZero:true,grid:{color:'#eef1f5'},ticks:{font:{size:10},color:'#9aa1ac',precision:0}} } } });
   }
   function statusDonut(id,kpis){
     const ctx=getCtx(id); if(!ctx) return;
@@ -929,13 +1124,22 @@ const Charts = (() => {
 
 /* ============================================================ TABLE */
 const TableModule = (() => {
-  let allRows=[], currentPage=1, sortField='dataAbertura', sortDir='desc'; const pageSize=CONFIG.PAGE_SIZE;
+  let allRows=[], currentPage=1, sortField='dataAbertura', sortDir='desc'; let pageSize=100;
   function setData(rows){ allRows=rows; if(currentPage<1) currentPage=1; render(); }
+  function setPageSize(value){ pageSize=Number(value)||99999; currentPage=1; render(); }
   function sort(field){ if(sortField===field) sortDir=sortDir==='asc'?'desc':'asc'; else { sortField=field; sortDir='asc'; } currentPage=1; render(); }
   function getSorted(){
     const s=[...allRows]; s.sort((a,b)=>{
       let va=a[sortField], vb=b[sortField];
-      if(va instanceof Date||vb instanceof Date){ va=va?va.getTime():0; vb=vb?vb.getTime():0; }
+
+      // Ordenação correta para campos de data (ex.: Abertura)
+      if(sortField==='dataAbertura' || sortField==='dataConclusao' || sortField==='dataPrevista'){
+        va = va instanceof Date ? va.getTime() : (va ? new Date(va).getTime() : 0);
+        vb = vb instanceof Date ? vb.getTime() : (vb ? new Date(vb).getTime() : 0);
+      } else if(va instanceof Date||vb instanceof Date){ 
+        va=va?va.getTime():0; 
+        vb=vb?vb.getTime():0; 
+      }
       if(typeof va==='number'||typeof vb==='number'){ va=va??-Infinity; vb=vb??-Infinity; }
       if(typeof va==='string') va=va.toLowerCase(); if(typeof vb==='string') vb=vb.toLowerCase();
       if(va<vb) return sortDir==='asc'?-1:1; if(va>vb) return sortDir==='asc'?1:-1; return 0;
@@ -943,6 +1147,7 @@ const TableModule = (() => {
   }
   function render(){
     const tbody=document.getElementById('tableBody'), info=document.getElementById('tableInfo'), pag=document.getElementById('pagination'); if(!tbody) return;
+    const selector=document.getElementById('pageSizeSelect'); if(selector && !selector.dataset.bound){ selector.dataset.bound='1'; selector.addEventListener('change',e=>setPageSize(e.target.value)); }
     const sorted=getSorted(), total=sorted.length, totalPages=Math.max(1,Math.ceil(total/pageSize));
     if(currentPage>totalPages) currentPage=totalPages;
     const start=(currentPage-1)*pageSize, pageRows=sorted.slice(start,start+pageSize);
@@ -1007,14 +1212,37 @@ const TableModule = (() => {
 /* ============================================================ CROSS FILTER */
 const CrossFilter = (() => {
   let listeners=[];
+  let selectedDate='';
   const map={ transportador:'filtroTransportador', solicitante:'filtroSolicitante', responsavel:'filtroResponsavel', status:'filtroStatus', tipo:'filtroTipo', ruptura:'filtroRuptura' };
+  const notify=()=>listeners.forEach(fn=>fn());
+  const syncDateControl=()=>{
+    const input=document.getElementById('filtroDataExata');
+    const clear=document.getElementById('btnClearDate');
+    if(input) input.value=selectedDate;
+    if(clear) clear.classList.toggle('hidden',!selectedDate);
+  };
+  const setDate=(value,shouldNotify=true,showToast=false)=>{
+    selectedDate=value?String(value):'';
+    syncDateControl();
+    if(shouldNotify) notify();
+    if(showToast) Utils.toast(selectedDate?`Dia filtrado: ${selectedDate.split('-').reverse().join('/')}`:'Filtro de dia removido','info',2200);
+  };
   return {
     apply(field,value){
       if(!field||value==null) return;
+      if(field==='dataExata'){
+        setDate(selectedDate===String(value)?'':String(value),true,true);
+        return;
+      }
       const el=document.getElementById(map[field]||field); if(!el) return;
       el.value=(el.value===String(value))?'':String(value);
-      listeners.forEach(fn=>fn());
+      notify();
     },
+    setDate(value,shouldNotify=true){ setDate(value,shouldNotify,false); },
+    get(field){ return field==='dataExata'?selectedDate:''; },
+    clear(field,shouldNotify=true){ if(field==='dataExata') setDate('',shouldNotify,false); },
+    reset(shouldNotify=true){ setDate('',shouldNotify,false); },
+    syncDateControl,
     subscribe(fn){ listeners.push(fn); }
   };
 })();
@@ -1028,13 +1256,15 @@ const App = (() => {
   const sectionTitles={ dashboard:'Dashboard', evolucao:'Evolução Diária', analises:'Análises', prazos:'Cumprimento de Prazos', tabela:'Detalhamento', fila:'Fila de Atendimento' };
   const sectionSubs={ dashboard:'Visão geral das solicitações', evolucao:'Abertas, concluídas e backlog no tempo', analises:'Distribuições e tempos de atendimento', prazos:'Aderência aos prazos planejados', tabela:'Lista completa e exportação', fila:'Pendências na ordem de abertura' };
 
-  async function init(){ bindUI(); CrossFilter.subscribe(applyFiltersAndRender); await refresh(); }
+  async function init(){ bindUI(); CrossFilter.syncDateControl(); CrossFilter.subscribe(applyFiltersAndRender); await refresh(); }
 
   function bindUI(){
     document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',e=>{ e.preventDefault(); navigateTo(item.dataset.section); }));
     document.getElementById('sidebarToggle')?.addEventListener('click',()=>document.getElementById('sidebar')?.classList.toggle('collapsed'));
     document.getElementById('mobileMenu')?.addEventListener('click',()=>document.getElementById('sidebar')?.classList.toggle('open'));
     document.getElementById('btnRefresh')?.addEventListener('click',()=>refresh(true));
+    document.getElementById('filtroDataExata')?.addEventListener('change',e=>CrossFilter.setDate(e.target.value));
+    document.getElementById('btnClearDate')?.addEventListener('click',()=>CrossFilter.clear('dataExata'));
     document.getElementById('tableSearch')?.addEventListener('input',Utils.debounce(()=>applyFiltersAndRender(),260));
     FILTER_IDS.forEach(id=>document.getElementById(id)?.addEventListener('change',applyFiltersAndRender));
     document.getElementById('btnExportCSV')?.addEventListener('click',()=>TableModule.exportCSV());
@@ -1084,7 +1314,7 @@ const App = (() => {
     return {
       periodo:val('filtroPeriodo')||'30', transportador:val('filtroTransportador'), solicitante:val('filtroSolicitante'),
       responsavel:val('filtroResponsavel'), status:val('filtroStatus'), tipo:val('filtroTipo'),
-      ruptura:val('filtroRuptura'), search:val('tableSearch')
+      ruptura:val('filtroRuptura'), search:val('tableSearch'), dataExata:CrossFilter.get('dataExata')
     };
   }
   function val(id){ return document.getElementById(id)?.value||''; }
@@ -1131,11 +1361,13 @@ const App = (() => {
     const labels={ transportador:'Transportador', solicitante:'Solicitante', responsavel:'Responsável', status:'Status', tipo:'Urgência', ruptura:'Ruptura' };
     const periodLabels={ '7':'Últimos 7 dias','15':'Últimos 15 dias','90':'Últimos 90 dias','all':'Todo o período' };
     if(f.periodo && f.periodo!=='30' && periodLabels[f.periodo]) chips.push(chip('Período',periodLabels[f.periodo],'filtroPeriodo','30'));
+    if(f.dataExata){ const [y,m,d]=f.dataExata.split('-'); chips.push(`<span class="chip"><span class="chip-key">Dia selecionado</span><b>${d}/${m}/${y}</b><button data-clear-date="1" aria-label="Remover filtro de dia"><i class="bi bi-x"></i></button></span>`); }
     ['transportador','solicitante','responsavel','status','tipo'].forEach(k=>{ if(f[k]) chips.push(chip(labels[k],f[k],'filtro'+cap(k),'')); });
     if(f.ruptura) chips.push(chip('Ruptura', f.ruptura==='SIM'?'Com ruptura':'Sem ruptura','filtroRuptura',''));
     if(f.search) chips.push(chip('Busca',`"${f.search}"`,'tableSearch',''));
     box.innerHTML = chips.length ? chips.join('') + `<button class="chip-clear" id="chipClearAll"><i class="bi bi-x-circle"></i> Limpar tudo</button>` : '';
     box.querySelectorAll('[data-clear]').forEach(b=>b.addEventListener('click',()=>{ const el=document.getElementById(b.dataset.clear); if(el){ el.value=b.dataset.reset; } applyFiltersAndRender(); }));
+    box.querySelector('[data-clear-date]')?.addEventListener('click',()=>CrossFilter.clear('dataExata'));
     document.getElementById('chipClearAll')?.addEventListener('click',clearFilters);
   }
   function chip(key,value,targetId,reset){ return `<span class="chip"><span class="chip-key">${key}</span><b>${Utils.escapeHtml(value)}</b><button data-clear="${targetId}" data-reset="${reset}" aria-label="Remover filtro"><i class="bi bi-x"></i></button></span>`; }
@@ -1144,6 +1376,7 @@ const App = (() => {
   function clearFilters(){
     FILTER_IDS.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=(id==='filtroPeriodo')?'30':''; });
     const s=document.getElementById('tableSearch'); if(s) s.value='';
+    CrossFilter.reset(false);
     applyFiltersAndRender(); Utils.toast('Filtros limpos','info',2200);
   }
 
