@@ -277,19 +277,20 @@ const DataService = (() => {
           data = generateSampleData();
           break;
       }
+      // Segurança: só aceita dados completos e válidos.
+      if (!Array.isArray(data) || data.length === 0) {
+        throw new Error('A fonte de dados retornou vazio ou inválido.');
+      }
+
       rawData = data;
       lastFetch = new Date();
       return getAll();
     } catch (err) {
       console.error('[DataService]', err);
-      Utils.toast(`Erro ao carregar dados: ${err.message}`, 'error', 5000);
-      // Fallback para sample se falhar
-      if (CONFIG.DATA_SOURCE !== 'sample') {
-        rawData = generateSampleData();
-        lastFetch = new Date();
-        Utils.toast('Usando dados de demonstração (fallback)', 'info');
-      }
-      return getAll();
+      rawData = [];
+      lastFetch = null;
+      Utils.toast(`Não foi possível carregar os dados: ${err.message}. Tente novamente.`, 'error', 7000);
+      throw err;
     } finally {
       Utils.showLoading(false);
     }

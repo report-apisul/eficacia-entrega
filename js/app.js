@@ -90,8 +90,24 @@ const App = (() => {
       if (manual) Utils.toast('Dados atualizados', 'success');
     } catch (err) {
       console.error(err);
-      Utils.toast('Falha ao atualizar', 'error');
+      allData = [];
+      filteredData = [];
+      renderErrorState();
+      Utils.toast('Não foi possível carregar os dados. Clique em atualizar para tentar novamente.', 'error', 7000);
     }
+  }
+
+
+  function renderErrorState() {
+    const containers = document.querySelectorAll('.kpi, .chart-container, .table-container');
+    containers.forEach(el => {
+      if (el) {
+        el.innerHTML = '<div class="empty-state">
+          <strong>Dados indisponíveis</strong><br>
+          Não foi possível comunicar com a fonte de dados. Tente novamente.
+        </div>';
+      }
+    });
   }
 
   function getFilters() {

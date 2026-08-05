@@ -21,7 +21,7 @@ const CONFIG = {
   SHEETS_RANGE: 'Respostas ao formulário 1!A:Z',
 
   // Intervalo de atualização automática (ms). 0 = desativado
-  AUTO_REFRESH_MS: 5 * 60 * 1000, // 5 minutos
+  AUTO_REFRESH_MS: 0, // Atualização automática desativada
 
   // Regras de negócio
   DIAS_PRAZO_PADRAO: 5,          // Data Prevista = Abertura + N dias (enquanto não analisado)
