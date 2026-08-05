@@ -1,3 +1,42 @@
+
+/**
+ * Estado global de filtros cruzados
+ * Permite que gráficos, cards e tabelas compartilhem a mesma seleção.
+ */
+const CrossFilter = (() => {
+  let listeners = [];
+
+  function notify() {
+    listeners.forEach(fn => fn());
+  }
+
+  return {
+    apply(field, value) {
+      if (!field || value == null) return;
+      const map = {
+        transportador: 'filtroTransportador',
+        solicitante: 'filtroSolicitante',
+        responsavel: 'filtroResponsavel',
+        status: 'filtroStatus',
+        tipo: 'filtroTipo',
+        ruptura: 'filtroRuptura'
+      };
+      const el = document.getElementById(map[field] || field);
+      if (el) {
+        el.value = el.value === String(value) ? '' : value;
+        notify();
+      }
+    },
+    subscribe(fn) {
+      listeners.push(fn);
+    },
+    clear() {
+      listeners = [];
+    }
+  };
+})();
+
+window.BI_CrossFilter = CrossFilter;
 /**
  * BI Solicitações – Aplicação principal
  */
@@ -16,7 +55,7 @@ const App = (() => {
 
   async function init() {
     bindUI();
-    await refresh();
+    CrossFilter.subscribe(applyFiltersAndRender);\n    await refresh();
   }
 
   function bindUI() {

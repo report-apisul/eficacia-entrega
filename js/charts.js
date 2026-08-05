@@ -10,6 +10,15 @@ const Charts = (() => {
     maintainAspectRatio: false,
     animation: { duration: 450, easing: 'easeOutQuart' },
     interaction: { mode: 'index', intersect: false },
+    onClick: (event, elements, chart) => {
+      if (!elements.length) return;
+      const index = elements[0].index;
+      const label = chart.data.labels[index];
+      const field = chart.options?.plugins?.crossFilterField;
+      if (field && window.BI_CrossFilter) {
+        window.BI_CrossFilter.apply(field, label);
+      }
+    },
     plugins: {
       legend: {
         labels: {

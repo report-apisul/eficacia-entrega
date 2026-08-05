@@ -243,9 +243,24 @@ const Calculations = (() => {
       return Utils.dateKey(s.dataPrevistaEfetiva) === Utils.dateKey(now());
     }).length;
 
-    const atrasosDias = concluidas
-      .filter(s => s.situacaoPrazo === 'Atrasado' && s.dataConclusao && s.dataPrevistaEfetiva)
-      .map(s => Math.ceil(Utils.diffMs(s.dataPrevistaEfetiva, s.dataConclusao) / 86400000));
+    // Distribuição de atraso: considera concluídos fora do prazo e solicitações abertas/vencidas
+    const atrasosDias = items
+      .filter(s => {
+        const concluidoAtrasado = s.status === 'Concluído' &&
+          s.situacaoPrazo === 'Atrasado' &&
+          s.dataConclusao &&
+          s.dataPrevistaEfetiva;
+
+        const abertoVencido = (s.status === 'Aberto' || s.status === 'Em Andamento') &&
+          s.dataPrevistaEfetiva &&
+          now() > s.dataPrevistaEfetiva;
+
+        return concluidoAtrasado || abertoVencido;
+      })
+      .map(s => {
+        const dataFinal = s.dataConclusao || now();
+        return Math.max(1, Math.ceil(Utils.diffMs(s.dataPrevistaEfetiva, dataFinal) / 86400000));
+      });
 
     const buckets = { '1 dia': 0, '2-3 dias': 0, '4-7 dias': 0, '> 7 dias': 0 };
     atrasosDias.forEach(d => {

@@ -10,6 +10,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
+
+<style>
+/* Correção: permite visualizar todas as colunas da tabela de detalhamento */
+#section-tabela .table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+#section-tabela .data-table {
+  min-width: 1700px;
+  white-space: nowrap;
+}
+</style>
 </head>
 <body>
   <aside class="sidebar" id="sidebar">
