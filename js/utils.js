@@ -1,33 +1,22 @@
 /**
  * Utilitários gerais
  */
-
 const Utils = {
-  /**
-   * Parse de data flexível (ISO, BR, serial Excel)
-   */
   parseDate(value) {
     if (!value && value !== 0) return null;
     if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
-
-    // Serial Excel (número de dias desde 1899-12-30)
     if (typeof value === 'number' && value > 20000 && value < 60000) {
       const d = new Date((value - 25569) * 86400 * 1000);
       return isNaN(d.getTime()) ? null : d;
     }
-
     const str = String(value).trim();
     if (!str) return null;
-
-    // dd/mm/yyyy [hh:mm[:ss]]
     const br = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
     if (br) {
       const [, d, m, y, h = 0, min = 0, s = 0] = br;
       const date = new Date(+y, +m - 1, +d, +h, +min, +s);
       return isNaN(date.getTime()) ? null : date;
     }
-
-    // ISO / yyyy-mm-dd
     const iso = new Date(str);
     return isNaN(iso.getTime()) ? null : iso;
   },
@@ -59,7 +48,11 @@ const Utils = {
     return `${(value * 100).toFixed(decimals)}%`;
   },
 
-  /** Diferença em milissegundos */
+  formatNumber(n) {
+    if (n == null || isNaN(n)) return '—';
+    return Number(n).toLocaleString('pt-BR');
+  },
+
   diffMs(start, end) {
     const a = start instanceof Date ? start : this.parseDate(start);
     const b = end instanceof Date ? end : this.parseDate(end);
@@ -67,21 +60,18 @@ const Utils = {
     return b.getTime() - a.getTime();
   },
 
-  /** Adiciona dias a uma data */
   addDays(date, days) {
     const d = new Date(date.getTime());
     d.setDate(d.getDate() + days);
     return d;
   },
 
-  /** Início do dia local */
   startOfDay(date) {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
     return d;
   },
 
-  /** Chave de data YYYY-MM-DD */
   dateKey(date) {
     const d = date instanceof Date ? date : this.parseDate(date);
     if (!d) return null;
@@ -89,10 +79,9 @@ const Utils = {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   },
 
-  /** Label curto DD/MM */
   dateLabel(key) {
     if (!key) return '';
-    const [y, m, d] = key.split('-');
+    const [, m, d] = key.split('-');
     return `${d}/${m}`;
   },
 
@@ -104,29 +93,30 @@ const Utils = {
     };
   },
 
-  toast(message, type = 'info', duration = 3500) {
+  toast(message, type = 'info', duration = 4000) {
     const container = document.getElementById('toastContainer');
     if (!container) return;
     const el = document.createElement('div');
-    el.className = `toast ${type}`;
-    el.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'}"></i><span>${message}</span>`;
+    el.className = `toast toast-${type}`;
+    const icons = { success: 'check-circle-fill', error: 'exclamation-triangle-fill', info: 'info-circle-fill' };
+    el.innerHTML = `<i class="bi bi-${icons[type] || icons.info}"></i><span>${message}</span>`;
     container.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
     setTimeout(() => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateX(100%)';
-      el.style.transition = '0.3s';
+      el.classList.remove('show');
       setTimeout(() => el.remove(), 300);
     }, duration);
   },
 
-  showLoading(show = true) {
+  showLoading(show = true, msg = 'Carregando dados...') {
     const el = document.getElementById('loadingOverlay');
     if (!el) return;
+    const text = el.querySelector('.loading-text');
+    if (text) text.textContent = msg;
     if (show) el.classList.remove('hidden');
     else el.classList.add('hidden');
   },
 
-  /** Escape HTML */
   escapeHtml(str) {
     if (str == null) return '';
     return String(str)
@@ -136,7 +126,6 @@ const Utils = {
       .replace(/"/g, '&quot;');
   },
 
-  /** Gera ID único simples */
   uid() {
     return Math.random().toString(36).slice(2, 10);
   }

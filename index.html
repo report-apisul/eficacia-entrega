@@ -8,15 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="logo">
-        <span class="logo-icon logo-image"><img src="https://github.com/repositorio-apisul/apisul/blob/main/logo-apisul-branca.png?raw=true" alt="Apisul"></span>
+        <div class="logo-icon"><i class="bi bi-graph-up-arrow"></i></div>
         <div class="logo-text">
           <strong>Apisul</strong>
           <span>Eficácia na Entrega</span>
@@ -27,48 +26,31 @@
       </button>
     </div>
     <nav class="sidebar-nav">
-      <a href="#dashboard" class="nav-item active" data-section="dashboard">
-        <i class="bi bi-speedometer2"></i><span>Dashboard</span>
-      </a>
-      <a href="#evolucao" class="nav-item" data-section="evolucao">
-        <i class="bi bi-graph-up"></i><span>Evolução</span>
-      </a>
-      <a href="#analises" class="nav-item" data-section="analises">
-        <i class="bi bi-pie-chart"></i><span>Análises</span>
-      </a>
-      <a href="#prazos" class="nav-item" data-section="prazos">
-        <i class="bi bi-clock-history"></i><span>Prazos</span>
-      </a>
-      <a href="#tabela" class="nav-item" data-section="tabela">
-        <i class="bi bi-table"></i><span>Detalhamento</span>
-      </a>
-      <a href="#fila" class="nav-item" data-section="fila">
-        <i class="bi bi-list-ol"></i><span>Fila</span>
-      </a>
+      <a class="nav-item active" data-section="dashboard" href="#"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+      <a class="nav-item" data-section="evolucao" href="#"><i class="bi bi-graph-up"></i><span>Evolução</span></a>
+      <a class="nav-item" data-section="analises" href="#"><i class="bi bi-pie-chart"></i><span>Análises</span></a>
+      <a class="nav-item" data-section="prazos" href="#"><i class="bi bi-clock-history"></i><span>Prazos</span></a>
+      <a class="nav-item" data-section="tabela" href="#"><i class="bi bi-table"></i><span>Detalhamento</span></a>
+      <a class="nav-item" data-section="fila" href="#"><i class="bi bi-list-ol"></i><span>Fila</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="last-update" id="lastUpdate">
-        <i class="bi bi-arrow-repeat"></i>
-        <span>Atualizando...</span>
+        <i class="bi bi-clock-history"></i><span>Aguardando dados...</span>
       </div>
     </div>
   </aside>
 
-  <!-- Main -->
-  <main class="main-content" id="mainContent">
-    <!-- Topbar -->
+  <div class="main-content">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="btn-icon mobile-menu" id="mobileMenu" aria-label="Menu">
-          <i class="bi bi-list"></i>
-        </button>
+        <button class="btn-icon mobile-menu" id="mobileMenu" aria-label="Menu"><i class="bi bi-list"></i></button>
         <h1 class="page-title" id="pageTitle">Dashboard</h1>
       </div>
       <div class="topbar-right">
         <div class="filter-bar" id="filterBar">
           <div class="filter-group">
-            <label for="filtroPeriodo">Período</label>
-            <select id="filtroPeriodo" class="form-select">
+            <label>Período</label>
+            <select class="form-select" id="filtroPeriodo">
               <option value="7">Últimos 7 dias</option>
               <option value="15">Últimos 15 dias</option>
               <option value="30" selected>Últimos 30 dias</option>
@@ -77,26 +59,20 @@
             </select>
           </div>
           <div class="filter-group">
-            <label for="filtroTransportador">Transportador</label>
-            <select id="filtroTransportador" class="form-select">
-              <option value="">Todos</option>
-            </select>
+            <label>Transportador</label>
+            <select class="form-select" id="filtroTransportador"><option value="">Todos</option></select>
           </div>
           <div class="filter-group">
-            <label for="filtroSolicitante">Solicitante</label>
-            <select id="filtroSolicitante" class="form-select">
-              <option value="">Todos</option>
-            </select>
+            <label>Solicitante</label>
+            <select class="form-select" id="filtroSolicitante"><option value="">Todos</option></select>
           </div>
           <div class="filter-group">
-            <label for="filtroResponsavel">Responsável</label>
-            <select id="filtroResponsavel" class="form-select">
-              <option value="">Todos</option>
-            </select>
+            <label>Responsável</label>
+            <select class="form-select" id="filtroResponsavel"><option value="">Todos</option></select>
           </div>
           <div class="filter-group">
-            <label for="filtroStatus">Status</label>
-            <select id="filtroStatus" class="form-select">
+            <label>Status</label>
+            <select class="form-select" id="filtroStatus">
               <option value="">Todos</option>
               <option value="Aberto">Aberto</option>
               <option value="Em Andamento">Em Andamento</option>
@@ -104,202 +80,120 @@
             </select>
           </div>
           <div class="filter-group">
-            <label for="filtroTipo">Tipo</label>
-            <select id="filtroTipo" class="form-select">
-              <option value="">Todos</option>
+            <label>Urgência</label>
+            <select class="form-select" id="filtroTipo"><option value="">Todos</option></select>
+          </div>
+          <div class="filter-group">
+            <label>Ruptura</label>
+            <select class="form-select" id="filtroRuptura">
+              <option value="">Todas</option>
+              <option value="SIM">Com ruptura</option>
+              <option value="NÃO">Sem ruptura</option>
             </select>
           </div>
-          <button class="btn btn-primary btn-sm" id="btnAplicarFiltros">
-            <i class="bi bi-funnel"></i> Aplicar
-          </button>
-          <button class="btn btn-outline btn-sm" id="btnLimparFiltros" title="Limpar filtros">
-            <i class="bi bi-x-lg"></i>
-          </button>
+          <button class="btn btn-primary btn-sm" id="btnAplicarFiltros"><i class="bi bi-funnel"></i> Aplicar</button>
+          <button class="btn btn-outline btn-sm" id="btnLimparFiltros"><i class="bi bi-x-lg"></i></button>
         </div>
-        <button class="btn btn-primary btn-sm" id="btnRefresh" title="Atualizar dados">
-          <i class="bi bi-arrow-clockwise"></i>
-        </button>
+        <button class="btn-icon" id="btnRefresh" title="Atualizar dados"><i class="bi bi-arrow-clockwise"></i></button>
       </div>
     </header>
 
-    <!-- Content sections -->
-    <div class="content-wrapper">
-      <!-- ===== DASHBOARD ===== -->
-      <section id="section-dashboard" class="section active">
-        <!-- KPI Cards -->
-        <div class="kpi-grid" id="kpiGrid">
-          <div class="kpi-card">
-            <div class="kpi-icon bg-navy"><i class="bi bi-inbox-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Total de Solicitações</span>
-              <strong class="kpi-value" id="kpiTotal">—</strong>
-            </div>
+    <div class="error-banner hidden" id="errorBanner">
+      <i class="bi bi-wifi-off"></i>
+      <div>
+        <strong>Problema de conexão</strong>
+        <div class="error-msg">Não foi possível comunicar com a fonte de dados.</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="App.refresh(true)"><i class="bi bi-arrow-clockwise"></i> Tentar novamente</button>
+    </div>
+
+    <main class="content-wrapper">
+      <section class="section active" id="section-dashboard">
+        <div class="kpi-grid">
+          <div class="kpi-card clickable" data-filter-status="" title="Clique para limpar filtro de status">
+            <div class="kpi-icon bg-navy"><i class="bi bi-collection"></i></div>
+            <div class="kpi-body"><span class="kpi-label">Total</span><span class="kpi-value" id="kpiTotal">—</span></div>
           </div>
-          <div class="kpi-card">
+          <div class="kpi-card clickable" data-filter-status="Aberto">
             <div class="kpi-icon bg-blue"><i class="bi bi-folder2-open"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Abertas</span>
-              <strong class="kpi-value" id="kpiAbertas">—</strong>
-            </div>
+            <div class="kpi-body"><span class="kpi-label">Abertas</span><span class="kpi-value" id="kpiAbertas">—</span></div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-icon bg-cyan"><i class="bi bi-arrow-repeat"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Em Andamento</span>
-              <strong class="kpi-value" id="kpiAndamento">—</strong>
-            </div>
+          <div class="kpi-card clickable" data-filter-status="Em Andamento">
+            <div class="kpi-icon bg-cyan"><i class="bi bi-hourglass-split"></i></div>
+            <div class="kpi-body"><span class="kpi-label">Em Andamento</span><span class="kpi-value" id="kpiAndamento">—</span></div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-icon bg-green"><i class="bi bi-check-circle-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Concluídas</span>
-              <strong class="kpi-value" id="kpiConcluidas">—</strong>
-            </div>
+          <div class="kpi-card clickable" data-filter-status="Concluído">
+            <div class="kpi-icon bg-green"><i class="bi bi-check2-circle"></i></div>
+            <div class="kpi-body"><span class="kpi-label">Concluídas</span><span class="kpi-value" id="kpiConcluidas">—</span></div>
           </div>
           <div class="kpi-card alert">
-            <div class="kpi-icon bg-red"><i class="bi bi-exclamation-triangle-fill"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Vencidas</span>
-              <strong class="kpi-value" id="kpiVencidas">—</strong>
-            </div>
+            <div class="kpi-icon bg-red"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="kpi-body"><span class="kpi-label">Vencidas</span><span class="kpi-value" id="kpiVencidas">—</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon bg-indigo"><i class="bi bi-hourglass-split"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Tempo Médio Conclusão</span>
-              <strong class="kpi-value" id="kpiTempoMedio">—</strong>
-            </div>
+            <div class="kpi-icon bg-orange"><i class="bi bi-lightning"></i></div>
+            <div class="kpi-body"><span class="kpi-label">Com Ruptura</span><span class="kpi-value" id="kpiRupturas">—</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon bg-teal"><i class="bi bi-calendar-check"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">No Prazo</span>
-              <strong class="kpi-value" id="kpiNoPrazo">—</strong>
-            </div>
+            <div class="kpi-icon bg-indigo"><i class="bi bi-stopwatch"></i></div>
+            <div class="kpi-body"><span class="kpi-label">Tempo Médio</span><span class="kpi-value" id="kpiTempoMedio">—</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon bg-orange"><i class="bi bi-calendar-x"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Fora do Prazo</span>
-              <strong class="kpi-value" id="kpiForaPrazo">—</strong>
-            </div>
+            <div class="kpi-icon bg-teal"><i class="bi bi-check-lg"></i></div>
+            <div class="kpi-body"><span class="kpi-label">No Prazo</span><span class="kpi-value" id="kpiNoPrazo">—</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon bg-red"><i class="bi bi-x-lg"></i></div>
+            <div class="kpi-body"><span class="kpi-label">Fora do Prazo</span><span class="kpi-value" id="kpiForaPrazo">—</span></div>
           </div>
         </div>
 
-        <!-- Mini charts row -->
         <div class="charts-row">
-          <div class="card chart-card">
+          <div class="card">
             <div class="card-header">
               <h3>Evolução Diária</h3>
-              <span class="badge">Abertas × Concluídas × Backlog</span>
+              <span class="badge badge-info">Abertas × Concluídas × Backlog</span>
             </div>
-            <div class="card-body">
-              <canvas id="chartEvolucao" height="220"></canvas>
-            </div>
+            <div class="card-body"><div class="chart-box"><canvas id="chartEvolucao"></canvas></div></div>
           </div>
-          <div class="card chart-card">
-            <div class="card-header">
-              <h3>Status Atual</h3>
-            </div>
-            <div class="card-body chart-center">
-              <canvas id="chartStatus" height="220"></canvas>
-            </div>
+          <div class="card">
+            <div class="card-header"><h3>Status Atual</h3></div>
+            <div class="card-body"><div class="chart-box chart-box-sm"><canvas id="chartStatus"></canvas></div></div>
           </div>
         </div>
 
-        <div class="charts-row">
-          <div class="card chart-card">
-            <div class="card-header">
-              <h3>Top Solicitantes</h3>
-            </div>
-            <div class="card-body">
-              <canvas id="chartSolicitantes" height="240"></canvas>
-            </div>
-          </div>
-          <div class="card chart-card">
-            <div class="card-header">
-              <h3>Top Transportadores</h3>
-            </div>
-            <div class="card-body">
-              <canvas id="chartTransportadores" height="240"></canvas>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== EVOLUÇÃO ===== -->
-      <section id="section-evolucao" class="section">
-        <div class="card">
-          <div class="card-header">
-            <h3>Evolução Diária de Solicitações</h3>
-            <div class="card-actions">
-              <button class="btn btn-outline btn-sm" id="btnExportEvolucao">
-                <i class="bi bi-download"></i> Exportar
-              </button>
-            </div>
-          </div>
-          <div class="card-body">
-            <canvas id="chartEvolucaoFull" height="320"></canvas>
-          </div>
-        </div>
         <div class="charts-row mt-3">
           <div class="card">
-            <div class="card-header"><h3>Backlog (Saldo em Aberto)</h3></div>
-            <div class="card-body">
-              <canvas id="chartBacklog" height="200"></canvas>
-            </div>
+            <div class="card-header"><h3>Top Solicitantes</h3></div>
+            <div class="card-body"><div class="chart-box chart-box-sm"><canvas id="chartSolicitantes"></canvas></div></div>
           </div>
           <div class="card">
-            <div class="card-header"><h3>Resumo do Período</h3></div>
-            <div class="card-body" id="resumoEvolucao">
-              <!-- preenchido via JS -->
-            </div>
+            <div class="card-header"><h3>Top Transportadores</h3></div>
+            <div class="card-body"><div class="chart-box chart-box-sm"><canvas id="chartTransportadores"></canvas></div></div>
           </div>
         </div>
-      </section>
 
-      <!-- ===== ANÁLISES ===== -->
-      <section id="section-analises" class="section">
-        <div class="charts-row">
-          <div class="card">
-            <div class="card-header"><h3>Solicitações por Usuário</h3></div>
-            <div class="card-body">
-              <canvas id="chartUsuariosFull" height="300"></canvas>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header"><h3>Solicitações por Transportador</h3></div>
-            <div class="card-body">
-              <canvas id="chartTransportadoresFull" height="300"></canvas>
-            </div>
-          </div>
-        </div>
         <div class="charts-row mt-3">
           <div class="card">
-            <div class="card-header"><h3>Por Tipo de Solicitação</h3></div>
-            <div class="card-body chart-center">
-              <canvas id="chartTipos" height="260"></canvas>
+            <div class="card-header"><h3>Fila no Momento da Abertura</h3><span class="badge badge-info">Histórico (Fila Fixa)</span></div>
+            <div class="card-body">
+              <div class="metric-grid">
+                <div class="metric-item"><span class="metric-label">Média na fila</span><strong class="metric-value" id="kpiFilaMedia">—</strong></div>
+                <div class="metric-item"><span class="metric-label">Menor fila</span><strong class="metric-value" id="kpiFilaMin">—</strong></div>
+                <div class="metric-item"><span class="metric-label">Maior fila</span><strong class="metric-value" id="kpiFilaMax">—</strong></div>
+                <div class="metric-item"><span class="metric-label">Capacidade ref.</span><strong class="metric-value" style="font-size:1rem">~5 / dia</strong></div>
+              </div>
             </div>
           </div>
           <div class="card">
-            <div class="card-header"><h3>Tempo Médio de Atendimento</h3></div>
+            <div class="card-header"><h3>Prazo Planejado</h3><span class="badge badge-info">Dias (abertura → prevista)</span></div>
             <div class="card-body">
-              <div class="metric-grid" id="metricTempo">
-                <div class="metric-item">
-                  <span class="metric-label">Tempo Médio</span>
-                  <strong class="metric-value" id="tempoMedio">—</strong>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-label">Maior Tempo</span>
-                  <strong class="metric-value" id="tempoMax">—</strong>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-label">Menor Tempo</span>
-                  <strong class="metric-value" id="tempoMin">—</strong>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-label">Tempo Médio 1ª Análise</span>
-                  <strong class="metric-value" id="tempoPrimeiraAnalise">—</strong>
+              <div class="metric-grid">
+                <div class="metric-item"><span class="metric-label">Prazo médio</span><strong class="metric-value" id="kpiPrazoMedio">—</strong></div>
+                <div class="metric-item"><span class="metric-label">Menor prazo</span><strong class="metric-value" id="kpiPrazoMin">—</strong></div>
+                <div class="metric-item"><span class="metric-label">Maior prazo</span><strong class="metric-value" id="kpiPrazoMax">—</strong></div>
+                <div class="metric-item"><span class="metric-label">Regra padrão</span><strong class="metric-value" style="font-size:1rem">+5 dias</strong>
+                  <span class="metric-label" style="margin-top:.3rem">se sem previsão manual</span>
                 </div>
               </div>
             </div>
@@ -307,73 +201,114 @@
         </div>
       </section>
 
-      <!-- ===== PRAZOS ===== -->
-      <section id="section-prazos" class="section">
+      <section class="section" id="section-evolucao">
+        <div class="card">
+          <div class="card-header"><h3>Evolução Diária de Solicitações</h3></div>
+          <div class="card-body"><div class="chart-box chart-box-lg"><canvas id="chartEvolucaoFull"></canvas></div></div>
+        </div>
+        <div class="charts-row mt-3">
+          <div class="card">
+            <div class="card-header"><h3>Backlog (Saldo em Aberto)</h3></div>
+            <div class="card-body"><div class="chart-box"><canvas id="chartBacklog"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Resumo do Período</h3></div>
+            <div class="card-body" id="resumoEvolucao"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="section-analises">
+        <div class="charts-row">
+          <div class="card">
+            <div class="card-header"><h3>Solicitações por Usuário</h3></div>
+            <div class="card-body"><div class="chart-box"><canvas id="chartUsuariosFull"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Solicitações por Transportador</h3></div>
+            <div class="card-body"><div class="chart-box"><canvas id="chartTransportadoresFull"></canvas></div></div>
+          </div>
+        </div>
+        <div class="charts-row mt-3">
+          <div class="card">
+            <div class="card-header"><h3>Por Nível de Urgência</h3></div>
+            <div class="card-body"><div class="chart-box chart-box-sm"><canvas id="chartTipos"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Rupturas</h3></div>
+            <div class="card-body"><div class="chart-box chart-box-sm"><canvas id="chartRuptura"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card mt-3">
+          <div class="card-header"><h3>Tempo Médio de Atendimento</h3></div>
+          <div class="card-body">
+            <div class="metric-grid" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="metric-item"><span class="metric-label">Tempo Médio</span><strong class="metric-value" id="tempoMedio">—</strong></div>
+              <div class="metric-item"><span class="metric-label">Maior Tempo</span><strong class="metric-value" id="tempoMax">—</strong></div>
+              <div class="metric-item"><span class="metric-label">Menor Tempo</span><strong class="metric-value" id="tempoMin">—</strong></div>
+              <div class="metric-item"><span class="metric-label">Tempo Médio 1ª Análise</span><strong class="metric-value" id="tempoPrimeiraAnalise">—</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="section-prazos">
         <div class="kpi-grid kpi-grid-4">
           <div class="kpi-card">
-            <div class="kpi-icon bg-teal"><i class="bi bi-check2-circle"></i></div>
+            <div class="kpi-icon bg-green"><i class="bi bi-check2"></i></div>
             <div class="kpi-body">
               <span class="kpi-label">No Prazo</span>
-              <strong class="kpi-value" id="prazoNoPrazo">—</strong>
+              <span class="kpi-value" id="prazoNoPrazo">—</span>
               <span class="kpi-sub" id="prazoNoPrazoPct"></span>
             </div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon bg-red"><i class="bi bi-x-circle"></i></div>
+            <div class="kpi-icon bg-red"><i class="bi bi-exclamation"></i></div>
             <div class="kpi-body">
               <span class="kpi-label">Atrasado</span>
-              <strong class="kpi-value" id="prazoAtrasado">—</strong>
+              <span class="kpi-value" id="prazoAtrasado">—</span>
               <span class="kpi-sub" id="prazoAtrasadoPct"></span>
             </div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon bg-green"><i class="bi bi-lightning-charge"></i></div>
+            <div class="kpi-icon bg-indigo"><i class="bi bi-lightning-charge"></i></div>
             <div class="kpi-body">
               <span class="kpi-label">Antecipado (&lt; 24h)</span>
-              <strong class="kpi-value" id="prazoAntecipado">—</strong>
+              <span class="kpi-value" id="prazoAntecipado">—</span>
               <span class="kpi-sub" id="prazoAntecipadoPct"></span>
             </div>
           </div>
-          <div class="kpi-card">
+          <div class="kpi-card alert">
             <div class="kpi-icon bg-orange"><i class="bi bi-calendar-event"></i></div>
             <div class="kpi-body">
               <span class="kpi-label">Vencem Hoje</span>
-              <strong class="kpi-value" id="prazoVencemHoje">—</strong>
+              <span class="kpi-value" id="prazoVencemHoje">—</span>
             </div>
           </div>
         </div>
         <div class="charts-row">
           <div class="card">
             <div class="card-header"><h3>Cumprimento de Prazo</h3></div>
-            <div class="card-body chart-center">
-              <canvas id="chartPrazos" height="260"></canvas>
-            </div>
+            <div class="card-body"><div class="chart-box"><canvas id="chartPrazos"></canvas></div></div>
           </div>
           <div class="card">
             <div class="card-header"><h3>Distribuição de Atraso (dias)</h3></div>
-            <div class="card-body">
-              <canvas id="chartAtraso" height="260"></canvas>
-            </div>
+            <div class="card-body"><div class="chart-box"><canvas id="chartAtraso"></canvas></div></div>
           </div>
         </div>
       </section>
 
-      <!-- ===== TABELA ===== -->
-      <section id="section-tabela" class="section">
+      <section class="section" id="section-tabela">
         <div class="card">
           <div class="card-header">
             <h3>Detalhamento de Solicitações</h3>
             <div class="card-actions">
               <div class="search-box">
                 <i class="bi bi-search"></i>
-                <input type="text" id="tableSearch" placeholder="Pesquisar..." />
+                <input type="text" id="tableSearch" placeholder="Buscar..." />
               </div>
-              <button class="btn btn-outline btn-sm" id="btnExportCSV">
-                <i class="bi bi-filetype-csv"></i> CSV
-              </button>
-              <button class="btn btn-outline btn-sm" id="btnExportExcel">
-                <i class="bi bi-file-earmark-excel"></i> Excel
-              </button>
+              <button class="btn btn-outline btn-sm" id="btnExportCSV"><i class="bi bi-filetype-csv"></i> CSV</button>
+              <button class="btn btn-outline btn-sm" id="btnExportExcel"><i class="bi bi-file-earmark-excel"></i> Excel</button>
             </div>
           </div>
           <div class="card-body p-0">
@@ -385,57 +320,46 @@
                     <th data-sort="dataAbertura">Abertura</th>
                     <th data-sort="solicitante">Solicitante</th>
                     <th data-sort="transportador">Transportador</th>
-                    <th data-sort="tipo">Tipo</th>
+                    <th data-sort="tipo">Urgência</th>
                     <th data-sort="status">Status</th>
                     <th data-sort="responsavel">Responsável</th>
+                    <th data-sort="shipment">Shipment</th>
                     <th data-sort="dataPrimeiraAnalise">1ª Análise</th>
-                    <th data-sort="dataPrevista">Prevista</th>
+                    <th data-sort="dataPrevistaEfetiva">Prevista</th>
                     <th data-sort="dataConclusao">Conclusão</th>
-                    <th data-sort="tempoPrimeiraAnalise">T. 1ª Anál.</th>
-                    <th data-sort="tempoTotal">T. Total</th>
+                    <th data-sort="tempoPrimeiraAnaliseMs">T. 1ª Anál.</th>
+                    <th data-sort="tempoTotalMs">T. Total</th>
                     <th data-sort="situacaoPrazo">Prazo</th>
                     <th data-sort="posicaoFila">Pos. Fila</th>
                     <th data-sort="qtdAfrente">À Frente</th>
                     <th data-sort="filaAbertura">Fila Abert.</th>
-                    <th data-sort="observacoes">Observações</th>
+                    <th>Observações</th>
                   </tr>
                 </thead>
-                <tbody id="tableBody">
-                  <!-- rows via JS -->
-                </tbody>
+                <tbody id="tableBody"></tbody>
               </table>
             </div>
             <div class="table-footer">
-              <div class="table-info" id="tableInfo">Exibindo 0 de 0</div>
+              <span id="tableInfo">Exibindo 0 de 0</span>
               <div class="pagination" id="pagination"></div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ===== FILA ===== -->
-      <section id="section-fila" class="section">
+      <section class="section" id="section-fila">
         <div class="kpi-grid kpi-grid-3">
           <div class="kpi-card">
             <div class="kpi-icon bg-navy"><i class="bi bi-list-ol"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Total na Fila</span>
-              <strong class="kpi-value" id="filaTotal">—</strong>
-            </div>
+            <div class="kpi-body"><span class="kpi-label">Total na Fila</span><span class="kpi-value" id="filaTotal">—</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon bg-blue"><i class="bi bi-hourglass-top"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Aguardando 1ª Análise</span>
-              <strong class="kpi-value" id="filaAguardando">—</strong>
-            </div>
+            <div class="kpi-icon bg-blue"><i class="bi bi-hourglass"></i></div>
+            <div class="kpi-body"><span class="kpi-label">Aguardando 1ª Análise</span><span class="kpi-value" id="filaAguardando">—</span></div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon bg-cyan"><i class="bi bi-person-check"></i></div>
-            <div class="kpi-body">
-              <span class="kpi-label">Com Prazo Definido</span>
-              <strong class="kpi-value" id="filaComPrazo">—</strong>
-            </div>
+            <div class="kpi-icon bg-cyan"><i class="bi bi-calendar-check"></i></div>
+            <div class="kpi-body"><span class="kpi-label">Com Prazo Definido</span><span class="kpi-value" id="filaComPrazo">—</span></div>
           </div>
         </div>
         <div class="card">
@@ -445,7 +369,7 @@
           </div>
           <div class="card-body p-0">
             <div class="table-wrapper">
-              <table class="data-table" id="filaTable">
+              <table class="data-table">
                 <thead>
                   <tr>
                     <th>Posição</th>
@@ -453,7 +377,7 @@
                     <th>Abertura</th>
                     <th>Solicitante</th>
                     <th>Transportador</th>
-                    <th>Tipo</th>
+                    <th>Urgência</th>
                     <th>Status</th>
                     <th>À Frente</th>
                     <th>Data Prevista</th>
@@ -467,19 +391,16 @@
           </div>
         </div>
       </section>
-    </div>
-  </main>
-
-  <!-- Toast container -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- Loading overlay -->
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-    <p>Carregando dados...</p>
+    </main>
   </div>
 
-  <!-- Scripts -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Carregando dados...</div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="js/config.js"></script>

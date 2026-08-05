@@ -1,40 +1,19 @@
 /**
- * Configuração do BI Eficácia na Entrega – Apisul
- * ---------------------------------------------------------
- * Fonte: Google Apps Script que lê a planilha "Eficácia na Entrega (respostas)"
+ * BI Eficácia na Entrega – Apisul
+ * Configuração central
  */
-
 const CONFIG = {
-  // === Fonte de dados ===
-  // 'apps-script' | 'sample' | 'csv' | 'sheets-api'
   DATA_SOURCE: 'apps-script',
-
-  // URL do Web App do Google Apps Script (publicado como "Qualquer pessoa")
   APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyD0071pyIgbbg0rYCk6hlR6Y8WluFLVVVlT48Cfd3l9B9iCgFu4jGDXGxOyjwLMkZS6A/exec',
+  FETCH_TIMEOUT_MS: 20000,
+  AUTO_REFRESH_MS: 0, // desativado por solicitação
+  DIAS_PRAZO_PADRAO: 5,
+  CAPACIDADE_MEDIA_DIA: 5,
+  ANTECIPADO_HORAS: 24,
+  PAGE_SIZE: 20,
+  // Somente solicitações com pré-análise (Código da Análise) – conforme ATA
+  REQUIRE_CODIGO: true,
 
-  // Fallback CSV (se preferir publicar a planilha)
-  CSV_URL: '',
-
-  // Google Sheets API (alternativa)
-  SHEETS_API_KEY: '',
-  SHEETS_ID: '',
-  SHEETS_RANGE: 'Respostas ao formulário 1!A:Z',
-
-  // Intervalo de atualização automática (ms). 0 = desativado
-  AUTO_REFRESH_MS: 0, // Atualização automática desativada
-
-  // Regras de negócio
-  DIAS_PRAZO_PADRAO: 5,          // Data Prevista = Abertura + N dias (enquanto não analisado)
-  CAPACIDADE_MEDIA_DIA: 5,       // Referência operacional
-  ANTECIPADO_HORAS: 24,          // Antecipado se concluído > 24h antes da prevista
-
-  // Tabela
-  PAGE_SIZE: 25,
-
-  /**
-   * Mapeamento de colunas da planilha real → campos internos
-   * Cabeçalhos exatamente como retornados pela API do Apps Script
-   */
   COLUMN_MAP: {
     numero:              'Codigo da Análise',
     dataAbertura:        'Carimbo de data/hora',
@@ -47,8 +26,8 @@ const CONFIG = {
     placa:               'Qual a placa?',
     notaFiscal:          'Insira a Nota Fiscal Original:',
     quantidade:          'Qual a quantidade de falta reclamada?',
-    valor:               'Qual o valor reclamado? ',   // atenção: espaço no final do cabeçalho real
-    tipo:                'Nivel de urgência',           // usamos urgência como "tipo"
+    valor:               'Qual o valor reclamado? ',
+    tipo:                'Nivel de urgência',
     filaAbertura:        'Fila Fixa',
     dataPrevista:        'Previsão de Entrega',
     dataConclusao:       'Data da Conclusão',
@@ -59,7 +38,6 @@ const CONFIG = {
     observacoes:         'OBSERVAÇÃO'
   },
 
-  // Cores do tema (Chart.js + identidade Apisul)
   CHART_COLORS: {
     navy:   '#0a2540',
     blue:   '#1a5f9e',
@@ -74,7 +52,7 @@ const CONFIG = {
     palette: [
       '#0a2540', '#1a5f9e', '#2b7bc1', '#4a9fe0',
       '#0d9488', '#14b8a6', '#059669', '#4f46e5',
-      '#ea580c', '#64748b'
+      '#ea580c', '#64748b', '#8b5cf6', '#ec4899'
     ]
   }
 };

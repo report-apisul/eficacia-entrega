@@ -1,11 +1,9 @@
 /**
  * BI Solicitações – Aplicação principal
- * Orquestra carregamento, filtros, renderização e navegação.
  */
-
 const App = (() => {
-  let allData = [];      // dados enriquecidos (sem filtro)
-  let filteredData = []; // dados após filtros
+  let allData = [];
+  let filteredData = [];
 
   const sectionTitles = {
     dashboard: 'Dashboard',
@@ -16,70 +14,69 @@ const App = (() => {
     fila: 'Fila de Atendimento'
   };
 
-  // ---------- Inicialização ----------
   async function init() {
     bindUI();
     await refresh();
-    if (CONFIG.AUTO_REFRESH_MS > 0) {
-      setInterval(refresh, CONFIG.AUTO_REFRESH_MS);
-    }
   }
 
   function bindUI() {
-    // Navegação lateral
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
-        const section = item.dataset.section;
-        navigateTo(section);
+        navigateTo(item.dataset.section);
       });
     });
 
-    // Sidebar collapse
     document.getElementById('sidebarToggle')?.addEventListener('click', () => {
       document.getElementById('sidebar')?.classList.toggle('collapsed');
     });
-
-    // Mobile menu
     document.getElementById('mobileMenu')?.addEventListener('click', () => {
       document.getElementById('sidebar')?.classList.toggle('open');
     });
 
-    // Filtros
     document.getElementById('btnAplicarFiltros')?.addEventListener('click', applyFiltersAndRender);
     document.getElementById('btnLimparFiltros')?.addEventListener('click', clearFilters);
     document.getElementById('btnRefresh')?.addEventListener('click', () => refresh(true));
 
-    // Busca tabela
     const searchInput = document.getElementById('tableSearch');
     if (searchInput) {
-      searchInput.addEventListener('input', Utils.debounce(() => {
-        applyFiltersAndRender();
-      }, 280));
+      searchInput.addEventListener('input', Utils.debounce(() => applyFiltersAndRender(), 280));
     }
 
-    // Exportações
+    // Filtros reagem ao change
+    ['filtroPeriodo', 'filtroTransportador', 'filtroSolicitante', 'filtroResponsavel', 'filtroStatus', 'filtroTipo', 'filtroRuptura']
+      .forEach(id => {
+        document.getElementById(id)?.addEventListener('change', applyFiltersAndRender);
+      });
+
     document.getElementById('btnExportCSV')?.addEventListener('click', () => TableModule.exportCSV());
     document.getElementById('btnExportExcel')?.addEventListener('click', () => TableModule.exportExcel());
 
-    // Sort headers
     TableModule.bindHeaderSort();
+
+    // KPI cards clicáveis para filtrar por status
+    document.querySelectorAll('[data-filter-status]').forEach(el => {
+      el.addEventListener('click', () => {
+        const status = el.dataset.filterStatus;
+        const sel = document.getElementById('filtroStatus');
+        if (sel) {
+          sel.value = status === sel.value ? '' : status;
+          applyFiltersAndRender();
+          Utils.toast(status ? `Filtro: ${status}` : 'Filtro de status removido', 'info');
+        }
+      });
+    });
   }
 
   function navigateTo(section) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.querySelector(`.nav-item[data-section="${section}"]`)?.classList.add('active');
-
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(`section-${section}`)?.classList.add('active');
-
     document.getElementById('pageTitle').textContent = sectionTitles[section] || 'Dashboard';
-
-    // Fecha sidebar mobile
     document.getElementById('sidebar')?.classList.remove('open');
   }
 
-  // ---------- Dados ----------
   async function refresh(manual = false) {
     try {
       const raw = await DataService.load();
@@ -87,27 +84,26 @@ const App = (() => {
       populateFilterOptions();
       applyFiltersAndRender();
       updateLastFetch();
-      if (manual) Utils.toast('Dados atualizados', 'success');
+      hideErrorBanner();
+      if (manual) Utils.toast('Dados atualizados com sucesso', 'success');
     } catch (err) {
       console.error(err);
       allData = [];
       filteredData = [];
-      renderErrorState();
-      Utils.toast('Não foi possível carregar os dados. Clique em atualizar para tentar novamente.', 'error', 7000);
+      showErrorBanner(err.message || 'Não foi possível carregar os dados.');
+      Utils.toast('Problema de conexão com a planilha.', 'error', 6000);
     }
   }
 
+  function showErrorBanner(msg) {
+    const banner = document.getElementById('errorBanner');
+    if (!banner) return;
+    banner.querySelector('.error-msg').textContent = msg;
+    banner.classList.remove('hidden');
+  }
 
-  function renderErrorState() {
-    const containers = document.querySelectorAll('.kpi, .chart-container, .table-container');
-    containers.forEach(el => {
-      if (el) {
-        el.innerHTML = '<div class="empty-state">
-          <strong>Dados indisponíveis</strong><br>
-          Não foi possível comunicar com a fonte de dados. Tente novamente.
-        </div>';
-      }
-    });
+  function hideErrorBanner() {
+    document.getElementById('errorBanner')?.classList.add('hidden');
   }
 
   function getFilters() {
@@ -118,22 +114,22 @@ const App = (() => {
       responsavel: document.getElementById('filtroResponsavel')?.value || '',
       status: document.getElementById('filtroStatus')?.value || '',
       tipo: document.getElementById('filtroTipo')?.value || '',
+      ruptura: document.getElementById('filtroRuptura')?.value || '',
       search: document.getElementById('tableSearch')?.value || ''
     };
   }
 
   function applyFiltersAndRender() {
-    const filters = getFilters();
-    filteredData = Calculations.applyFilters(allData, filters);
+    filteredData = Calculations.applyFilters(allData, getFilters());
     renderAll();
   }
 
   function clearFilters() {
-    const ids = ['filtroPeriodo', 'filtroTransportador', 'filtroSolicitante', 'filtroResponsavel', 'filtroStatus', 'filtroTipo'];
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = id === 'filtroPeriodo' ? '30' : '';
-    });
+    ['filtroPeriodo', 'filtroTransportador', 'filtroSolicitante', 'filtroResponsavel', 'filtroStatus', 'filtroTipo', 'filtroRuptura']
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = id === 'filtroPeriodo' ? '30' : '';
+      });
     const search = document.getElementById('tableSearch');
     if (search) search.value = '';
     applyFiltersAndRender();
@@ -151,7 +147,6 @@ const App = (() => {
     const sel = document.getElementById(id);
     if (!sel) return;
     const current = sel.value;
-    // Mantém a opção "Todos"
     while (sel.options.length > 1) sel.remove(1);
     values.forEach(v => {
       const opt = document.createElement('option');
@@ -166,11 +161,10 @@ const App = (() => {
     const el = document.getElementById('lastUpdate');
     const t = DataService.getLastFetch();
     if (el && t) {
-      el.innerHTML = `<i class="bi bi-arrow-repeat"></i><span>Atualizado às ${Utils.formatDate(t, true).split(' ')[1]}</span>`;
+      el.innerHTML = `<i class="bi bi-clock-history"></i><span>Atualizado às ${Utils.formatDate(t, true).split(' ')[1]}</span>`;
     }
   }
 
-  // ---------- Renderização ----------
   function renderAll() {
     renderKPIs();
     renderDashboardCharts();
@@ -181,6 +175,11 @@ const App = (() => {
     renderFila();
   }
 
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value != null ? value : '—';
+  }
+
   function renderKPIs() {
     const k = Calculations.computeKPIs(filteredData);
     setText('kpiTotal', k.total);
@@ -188,9 +187,20 @@ const App = (() => {
     setText('kpiAndamento', k.andamento);
     setText('kpiConcluidas', k.concluidas);
     setText('kpiVencidas', k.vencidas);
+    setText('kpiRupturas', k.rupturas);
     setText('kpiTempoMedio', Utils.formatDuration(k.tempoMedioMs));
     setText('kpiNoPrazo', k.pctNoPrazo != null ? Utils.formatPercent(k.pctNoPrazo) : '—');
     setText('kpiForaPrazo', k.pctForaPrazo != null ? Utils.formatPercent(k.pctForaPrazo) : '—');
+
+    // Fila histórica
+    setText('kpiFilaMedia', k.filaMedia != null ? k.filaMedia.toFixed(1) : '—');
+    setText('kpiFilaMin', k.filaMin != null ? k.filaMin : '—');
+    setText('kpiFilaMax', k.filaMax != null ? k.filaMax : '—');
+
+    // Prazo planejado
+    setText('kpiPrazoMedio', k.prazoMedio != null ? `${k.prazoMedio.toFixed(1)} d` : '—');
+    setText('kpiPrazoMin', k.prazoMin != null ? `${k.prazoMin} d` : '—');
+    setText('kpiPrazoMax', k.prazoMax != null ? `${k.prazoMax} d` : '—');
   }
 
   function renderDashboardCharts() {
@@ -198,13 +208,10 @@ const App = (() => {
     const days = getFilters().periodo === 'all' ? 90 : periodo;
     const series = Calculations.computeEvolucao(filteredData, days);
     const kpis = Calculations.computeKPIs(filteredData);
-    const porSolicitante = Calculations.groupBy(filteredData, 'solicitante');
-    const porTransportador = Calculations.groupBy(filteredData, 'transportador');
-
     Charts.evolucao('chartEvolucao', series);
     Charts.statusDonut('chartStatus', kpis);
-    Charts.horizontalBar('chartSolicitantes', porSolicitante, CONFIG.CHART_COLORS.blue, 6);
-    Charts.horizontalBar('chartTransportadores', porTransportador, CONFIG.CHART_COLORS.cyan, 6);
+    Charts.horizontalBar('chartSolicitantes', Calculations.groupBy(filteredData, 'solicitante'), CONFIG.CHART_COLORS.blue, 6);
+    Charts.horizontalBar('chartTransportadores', Calculations.groupBy(filteredData, 'transportador'), CONFIG.CHART_COLORS.cyan, 6);
   }
 
   function renderEvolucao() {
@@ -221,24 +228,11 @@ const App = (() => {
     if (resumo) {
       resumo.innerHTML = `
         <div class="metric-grid">
-          <div class="metric-item">
-            <span class="metric-label">Abertas no período</span>
-            <strong class="metric-value">${totalAb}</strong>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Concluídas no período</span>
-            <strong class="metric-value">${totalCo}</strong>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Backlog atual</span>
-            <strong class="metric-value">${backlogFinal}</strong>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Saldo (Abertas − Concluídas)</span>
-            <strong class="metric-value">${totalAb - totalCo}</strong>
-          </div>
-        </div>
-      `;
+          <div class="metric-item"><span class="metric-label">Abertas no período</span><strong class="metric-value">${totalAb}</strong></div>
+          <div class="metric-item"><span class="metric-label">Concluídas no período</span><strong class="metric-value">${totalCo}</strong></div>
+          <div class="metric-item"><span class="metric-label">Backlog atual</span><strong class="metric-value">${backlogFinal}</strong></div>
+          <div class="metric-item"><span class="metric-label">Saldo (Ab. − Conc.)</span><strong class="metric-value">${totalAb - totalCo}</strong></div>
+        </div>`;
     }
   }
 
@@ -247,10 +241,12 @@ const App = (() => {
     const porTransp = Calculations.groupBy(filteredData, 'transportador');
     const porTipo = Calculations.groupBy(filteredData, 'tipo');
     const tempos = Calculations.computeTempos(filteredData);
+    const kpis = Calculations.computeKPIs(filteredData);
 
     Charts.horizontalBar('chartUsuariosFull', porUsuario, CONFIG.CHART_COLORS.navy, 10);
     Charts.horizontalBar('chartTransportadoresFull', porTransp, CONFIG.CHART_COLORS.blueMid, 10);
     Charts.pie('chartTipos', porTipo);
+    Charts.rupturaBar('chartRuptura', kpis.rupturas, filteredData.length - kpis.rupturas);
 
     setText('tempoMedio', Utils.formatDuration(tempos.tempoMedio));
     setText('tempoMax', Utils.formatDuration(tempos.tempoMax));
@@ -267,7 +263,6 @@ const App = (() => {
     setText('prazoAntecipado', p.antecipado);
     setText('prazoAntecipadoPct', Utils.formatPercent(p.pctAntecipado));
     setText('prazoVencemHoje', p.vencemHoje);
-
     Charts.prazosDonut('chartPrazos', p);
     Charts.atrasoBarras('chartAtraso', p.buckets);
   }
@@ -277,22 +272,12 @@ const App = (() => {
   }
 
   function renderFila() {
-    // Fila usa todos os dados (sem filtro de período) para refletir a fila real operacional
-    // Mas respeita filtros dimensionais se o usuário quiser focar
     const filtersSemPeriodo = { ...getFilters(), periodo: 'all', search: '' };
     const forFila = Calculations.applyFilters(allData, filtersSemPeriodo);
-    const fila = Calculations.computeFila(forFila);
-    TableModule.renderFila(fila);
+    TableModule.renderFila(Calculations.computeFila(forFila));
   }
 
-  function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value != null ? value : '—';
-  }
-
-  // Public
   return { init, refresh };
 })();
 
-// Boot
 document.addEventListener('DOMContentLoaded', () => App.init());

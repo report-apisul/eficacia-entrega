@@ -1,24 +1,33 @@
 /**
- * Gerenciamento de gráficos (Chart.js)
+ * Gráficos Chart.js – interativos e performáticos
  */
-
 const Charts = (() => {
   const instances = {};
   const C = CONFIG.CHART_COLORS;
 
-  const defaultOptions = {
+  const base = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: { duration: 450, easing: 'easeOutQuart' },
+    interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: {
-        labels: { font: { family: 'Inter', size: 11 }, color: '#475569', usePointStyle: true, padding: 16 }
+        labels: {
+          font: { family: 'Inter', size: 11 },
+          color: '#475569',
+          usePointStyle: true,
+          padding: 14,
+          boxWidth: 8
+        }
       },
       tooltip: {
-        backgroundColor: '#0a2540',
-        titleFont: { family: 'Inter', size: 12 },
+        backgroundColor: 'rgba(10, 37, 64, 0.95)',
+        titleFont: { family: 'Inter', size: 12, weight: '600' },
         bodyFont: { family: 'Inter', size: 11 },
-        padding: 10,
-        cornerRadius: 8
+        padding: 12,
+        cornerRadius: 10,
+        displayColors: true,
+        boxPadding: 4
       }
     }
   };
@@ -40,7 +49,6 @@ const Charts = (() => {
   function evolucao(canvasId, series) {
     const ctx = getCtx(canvasId);
     if (!ctx) return;
-
     instances[canvasId] = new Chart(ctx, {
       type: 'line',
       data: {
@@ -50,36 +58,39 @@ const Charts = (() => {
             label: 'Abertas',
             data: series.map(s => s.abertas),
             borderColor: C.blue,
-            backgroundColor: 'rgba(26, 95, 158, 0.08)',
+            backgroundColor: 'rgba(26, 95, 158, 0.12)',
             fill: true,
             tension: 0.35,
             pointRadius: 3,
-            pointHoverRadius: 5
+            pointHoverRadius: 6,
+            borderWidth: 2.5
           },
           {
             label: 'Concluídas',
             data: series.map(s => s.concluidas),
             borderColor: C.green,
-            backgroundColor: 'rgba(5, 150, 105, 0.08)',
+            backgroundColor: 'rgba(5, 150, 105, 0.12)',
             fill: true,
             tension: 0.35,
             pointRadius: 3,
-            pointHoverRadius: 5
+            pointHoverRadius: 6,
+            borderWidth: 2.5
           },
           {
             label: 'Backlog',
             data: series.map(s => s.backlog),
             borderColor: C.orange,
             backgroundColor: 'transparent',
-            borderDash: [5, 4],
+            borderDash: [6, 4],
             tension: 0.35,
             pointRadius: 2,
-            pointHoverRadius: 4
+            pointHoverRadius: 5,
+            borderWidth: 2
           }
         ]
       },
       options: {
-        ...defaultOptions,
+        ...base,
         scales: {
           x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8', maxRotation: 0 } },
           y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, color: '#94a3b8', precision: 0 } }
@@ -91,7 +102,6 @@ const Charts = (() => {
   function backlog(canvasId, series) {
     const ctx = getCtx(canvasId);
     if (!ctx) return;
-
     instances[canvasId] = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -99,14 +109,14 @@ const Charts = (() => {
         datasets: [{
           label: 'Backlog',
           data: series.map(s => s.backlog),
-          backgroundColor: 'rgba(234, 88, 12, 0.7)',
-          borderRadius: 4,
-          barPercentage: 0.7
+          backgroundColor: series.map((_, i) => i === series.length - 1 ? C.orange : 'rgba(234, 88, 12, 0.55)'),
+          borderRadius: 5,
+          barPercentage: 0.72
         }]
       },
       options: {
-        ...defaultOptions,
-        plugins: { ...defaultOptions.plugins, legend: { display: false } },
+        ...base,
+        plugins: { ...base.plugins, legend: { display: false } },
         scales: {
           x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
           y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, color: '#94a3b8', precision: 0 } }
@@ -118,7 +128,6 @@ const Charts = (() => {
   function statusDonut(canvasId, kpis) {
     const ctx = getCtx(canvasId);
     if (!ctx) return;
-
     instances[canvasId] = new Chart(ctx, {
       type: 'doughnut',
       data: {
@@ -127,14 +136,14 @@ const Charts = (() => {
           data: [kpis.abertas, kpis.andamento, kpis.concluidas],
           backgroundColor: [C.blue, C.cyan, C.green],
           borderWidth: 0,
-          hoverOffset: 6
+          hoverOffset: 8
         }]
       },
       options: {
-        ...defaultOptions,
-        cutout: '62%',
+        ...base,
+        cutout: '65%',
         plugins: {
-          ...defaultOptions.plugins,
+          ...base.plugins,
           legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 }, color: '#475569', usePointStyle: true, padding: 14 } }
         }
       }
@@ -145,27 +154,27 @@ const Charts = (() => {
     const ctx = getCtx(canvasId);
     if (!ctx) return;
     const data = groups.slice(0, limit);
-
     instances[canvasId] = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: data.map(g => g.nome.length > 18 ? g.nome.slice(0, 16) + '…' : g.nome),
+        labels: data.map(g => g.nome.length > 20 ? g.nome.slice(0, 18) + '…' : g.nome),
         datasets: [{
           label: 'Quantidade',
           data: data.map(g => g.qtd),
           backgroundColor: color,
-          borderRadius: 4,
+          hoverBackgroundColor: C.navy,
+          borderRadius: 5,
           barPercentage: 0.65
         }]
       },
       options: {
-        ...defaultOptions,
+        ...base,
         indexAxis: 'y',
         plugins: {
-          ...defaultOptions.plugins,
+          ...base.plugins,
           legend: { display: false },
           tooltip: {
-            ...defaultOptions.plugins.tooltip,
+            ...base.plugins.tooltip,
             callbacks: {
               afterLabel: (ctx) => {
                 const g = data[ctx.dataIndex];
@@ -182,16 +191,15 @@ const Charts = (() => {
     });
   }
 
-  function pie(canvasId, groups, limit = 7) {
+  function pie(canvasId, groups, limit = 6) {
     const ctx = getCtx(canvasId);
     if (!ctx) return;
     const data = groups.slice(0, limit);
-    // Agrupa o resto em "Outros"
     if (groups.length > limit) {
       const resto = groups.slice(limit).reduce((s, g) => s + g.qtd, 0);
-      data.push({ nome: 'Outros', qtd: resto, pct: resto / (groups.reduce((s, g) => s + g.qtd, 0) || 1) });
+      const tot = groups.reduce((s, g) => s + g.qtd, 0) || 1;
+      data.push({ nome: 'Outros', qtd: resto, pct: resto / tot });
     }
-
     instances[canvasId] = new Chart(ctx, {
       type: 'doughnut',
       data: {
@@ -200,14 +208,14 @@ const Charts = (() => {
           data: data.map(g => g.qtd),
           backgroundColor: C.palette.slice(0, data.length),
           borderWidth: 0,
-          hoverOffset: 6
+          hoverOffset: 8
         }]
       },
       options: {
-        ...defaultOptions,
+        ...base,
         cutout: '55%',
         plugins: {
-          ...defaultOptions.plugins,
+          ...base.plugins,
           legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 10 }, color: '#475569', usePointStyle: true, padding: 10 } }
         }
       }
@@ -217,7 +225,6 @@ const Charts = (() => {
   function prazosDonut(canvasId, prazos) {
     const ctx = getCtx(canvasId);
     if (!ctx) return;
-
     instances[canvasId] = new Chart(ctx, {
       type: 'doughnut',
       data: {
@@ -226,14 +233,14 @@ const Charts = (() => {
           data: [prazos.noPrazo, prazos.antecipado, prazos.atrasado],
           backgroundColor: [C.green, C.indigo, C.red],
           borderWidth: 0,
-          hoverOffset: 6
+          hoverOffset: 8
         }]
       },
       options: {
-        ...defaultOptions,
-        cutout: '60%',
+        ...base,
+        cutout: '62%',
         plugins: {
-          ...defaultOptions.plugins,
+          ...base.plugins,
           legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 }, color: '#475569', usePointStyle: true, padding: 14 } }
         }
       }
@@ -245,7 +252,6 @@ const Charts = (() => {
     if (!ctx) return;
     const labels = Object.keys(buckets);
     const values = Object.values(buckets);
-
     instances[canvasId] = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -255,12 +261,12 @@ const Charts = (() => {
           data: values,
           backgroundColor: [C.orange, '#f97316', C.red, '#991b1b'],
           borderRadius: 6,
-          barPercentage: 0.6
+          barPercentage: 0.55
         }]
       },
       options: {
-        ...defaultOptions,
-        plugins: { ...defaultOptions.plugins, legend: { display: false } },
+        ...base,
+        plugins: { ...base.plugins, legend: { display: false } },
         scales: {
           x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#475569' } },
           y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, color: '#94a3b8', precision: 0 } }
@@ -269,14 +275,33 @@ const Charts = (() => {
     });
   }
 
+  function rupturaBar(canvasId, sim, nao) {
+    const ctx = getCtx(canvasId);
+    if (!ctx) return;
+    instances[canvasId] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Com Ruptura', 'Sem Ruptura'],
+        datasets: [{
+          data: [sim, nao],
+          backgroundColor: [C.red, C.green],
+          borderRadius: 8,
+          barPercentage: 0.5
+        }]
+      },
+      options: {
+        ...base,
+        plugins: { ...base.plugins, legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#334155' } },
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, color: '#94a3b8', precision: 0 } }
+        }
+      }
+    });
+  }
+
   return {
-    evolucao,
-    backlog,
-    statusDonut,
-    horizontalBar,
-    pie,
-    prazosDonut,
-    atrasoBarras,
-    destroy
+    evolucao, backlog, statusDonut, horizontalBar, pie,
+    prazosDonut, atrasoBarras, rupturaBar, destroy
   };
 })();
