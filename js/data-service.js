@@ -96,14 +96,30 @@ const DataService = (() => {
 
   async function fetchAppsScript() {
     if (!CONFIG.APPS_SCRIPT_URL) throw new Error('URL da API não configurada.');
+
     let res;
-    try {
-      res = await fetchWithTimeout(CONFIG.APPS_SCRIPT_URL, CONFIG.FETCH_TIMEOUT_MS);
-    } catch (e) {
-      if (e.name === 'AbortError') {
+    let lastConnectionError = null;
+
+    // Retry para falhas momentâneas do Apps Script
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        res = await fetchWithTimeout(CONFIG.APPS_SCRIPT_URL, CONFIG.FETCH_TIMEOUT_MS);
+        if (res.ok) break;
+        lastConnectionError = new Error(`Erro na API (${res.status}).`);
+      } catch (e) {
+        lastConnectionError = e;
+      }
+
+      if (attempt < 3) {
+        await new Promise(resolve => setTimeout(resolve, attempt * 1500));
+      }
+    }
+
+    if (!res || !res.ok) {
+      if (lastConnectionError?.name === 'AbortError') {
         throw new Error('Tempo esgotado ao conectar com a planilha. Verifique sua conexão e tente novamente.');
       }
-      throw new Error('Falha de conexão com a fonte de dados. Verifique a internet ou se o Web App do Google está publicado.');
+      throw new Error('Não foi possível conectar com a API após algumas tentativas. Tente novamente.');
     }
     if (!res.ok) {
       throw new Error(`Erro na API (${res.status}). Tente novamente em instantes.`);
