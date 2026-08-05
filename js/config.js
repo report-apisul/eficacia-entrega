@@ -12,7 +12,7 @@ const CONFIG = {
   ANTECIPADO_HORAS: 24,
   PAGE_SIZE: 20,
   // Somente solicitações com pré-análise (Código da Análise) – conforme ATA
-  REQUIRE_CODIGO: true,
+  REQUIRE_CODIGO: false,
 
   COLUMN_MAP: {
     numero:              'Codigo da Análise',

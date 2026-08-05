@@ -118,12 +118,10 @@ const DataService = (() => {
       throw new Error(json.erro || 'A API retornou uma resposta inválida.');
     }
     const rows = json.dados || [];
-    let mapped = rows.map(normalizeRow).filter(r => r.dataAbertura);
+    let mapped = rows.map(normalizeRow);
 
-    // ATA: somente solicitações com pré-análise (Código da Análise)
-    if (CONFIG.REQUIRE_CODIGO) {
-      mapped = mapped.filter(r => r.numero);
-    }
+    // Mantém todos os registros válidos retornados pela API.
+    // Nenhum registro é removido por ausência de código ou data para preservar a contagem real da fonte.
     return mapped;
   }
 
