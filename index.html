@@ -59,8 +59,10 @@ body {
   background: var(--bg);
   color: var(--ink);
   display: flex;
+  width: 100%;
+  height: 100vh;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -143,10 +145,11 @@ body {
   min-width: 0;
   margin-left: var(--sidebar-w);
   transition: margin-left var(--transition), width var(--transition), max-width var(--transition), flex-basis var(--transition);
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 .sidebar.collapsed ~ .main-content {
   margin-left: var(--sidebar-collapsed);
@@ -157,11 +160,14 @@ body {
 
 /* ---------------- Topbar ---------------- */
 .topbar {
-  background: rgba(255,255,255,.85);
+  background: rgba(255,255,255,.96);
   backdrop-filter: saturate(1.4) blur(10px);
   border-bottom: 1px solid var(--line);
-  position: sticky; top: 0; z-index: 60;
+  position: relative;
+  z-index: 60;
+  flex: 0 0 auto;
   padding: .85rem 1.5rem .75rem;
+  box-shadow: 0 5px 16px rgba(11,31,56,.05);
 }
 .topbar-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .topbar-left { display: flex; align-items: center; gap: .8rem; min-width: 0; }
@@ -173,10 +179,10 @@ body {
   gap:12px;
 }
 .brand-mondelez {
-  height:20px;
-  width:auto;
-  object-fit:contain;
-} display: flex; align-items: center; gap: .5rem; }
+  height: 20px;
+  width: auto;
+  object-fit: contain;
+}
 
 .btn {
   display: inline-flex; align-items: center; gap: .4rem;
@@ -250,6 +256,7 @@ body {
   background: #fff5f5; border: 1px solid #fecaca; border-radius: var(--r-sm);
   padding: 1rem 1.25rem; margin: 1.2rem 1.5rem 0;
   display: flex; align-items: center; gap: .85rem; color: #991b1b;
+  flex: 0 0 auto;
 }
 .error-banner.hidden { display: none; }
 .error-banner i { font-size: 1.4rem; flex-shrink: 0; }
@@ -258,11 +265,15 @@ body {
 /* ---------------- Content ---------------- */
 .content-wrapper {
   padding: 1.4rem 1.5rem 2rem;
-  flex: 1;
+  flex: 1 1 auto;
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  min-height: 0;
   overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
 }
 .section { display: none; width: 100%; max-width: 100%; min-width: 0; }
 .section.active { display: block; animation: fadeIn .26s ease; }
@@ -470,6 +481,7 @@ body {
   .mobile-menu { display: grid; }
 }
 @media (max-width: 640px) {
+  .topbar { max-height: 52vh; overflow-y: auto; }
   .kpi-grid, .kpi-grid-3, .kpi-grid-4 { grid-template-columns: 1fr 1fr; }
   .content-wrapper { padding: 1rem; }
   .metric-grid { grid-template-columns: 1fr; }
@@ -527,10 +539,10 @@ body {
           </select>
         </div>
         <div class="filter-group filter-date-group">
-          <label>Data específica</label>
+          <label>Data de abertura</label>
           <div class="date-filter-wrap">
-            <input class="form-select date-filter-input" id="filtroDataExata" type="date" aria-label="Filtrar por uma data específica">
-            <button class="date-filter-clear hidden" id="btnClearDate" type="button" title="Limpar data específica" aria-label="Limpar data específica"><i class="bi bi-x"></i></button>
+            <input class="form-select date-filter-input" id="filtroDataExata" type="date" aria-label="Filtrar pela data de abertura">
+            <button class="date-filter-clear hidden" id="btnClearDate" type="button" title="Limpar data de abertura" aria-label="Limpar data de abertura"><i class="bi bi-x"></i></button>
           </div>
         </div>
         <div class="filter-group"><label>Transportador</label><select class="form-select" id="filtroTransportador"><option value="">Todos</option></select></div>
@@ -799,6 +811,7 @@ const Utils = {
   diffMs(start,end){ const a=start instanceof Date?start:this.parseDate(start), b=end instanceof Date?end:this.parseDate(end); return (!a||!b)?null:b.getTime()-a.getTime(); },
   addDays(date,days){ const d=new Date(date.getTime()); d.setDate(d.getDate()+days); return d; },
   startOfDay(date){ const d=new Date(date); d.setHours(0,0,0,0); return d; },
+  endOfDay(date){ const d=new Date(date); d.setHours(23,59,59,999); return d; },
   dateKey(date){ const d=date instanceof Date?date:this.parseDate(date); if(!d) return null; const pad=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; },
   dateLabel(key){ if(!key) return ''; const[,m,d]=key.split('-'); return `${d}/${m}`; },
   debounce(fn,wait=300){ let t; return(...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),wait); }; },
@@ -917,21 +930,29 @@ const Calculations = (() => {
       return e;
     });
   }
+  function prazoLimite(s){
+    return s?.dataPrevistaEfetiva ? Utils.endOfDay(s.dataPrevistaEfetiva) : null;
+  }
   function calcSituacaoPrazo(s){
-    if(s.status==='Concluído'&&s.dataConclusao&&s.dataPrevistaEfetiva){
-      const diff=Utils.diffMs(s.dataPrevistaEfetiva,s.dataConclusao); if(diff==null) return 'Pendente';
+    const limite=prazoLimite(s);
+    if(s.status==='Concluído'&&s.dataConclusao&&limite){
+      const diff=Utils.diffMs(limite,s.dataConclusao); if(diff==null) return 'Pendente';
       if(diff<-(CONFIG.ANTECIPADO_HORAS*3600000)) return 'Antecipado';
       if(diff<=0) return 'No Prazo'; return 'Atrasado';
     }
-    if((s.status==='Aberto'||s.status==='Em Andamento')&&s.dataPrevistaEfetiva) return now()>s.dataPrevistaEfetiva?'Vencido':'Pendente';
+    if((s.status==='Aberto'||s.status==='Em Andamento')&&limite) return now()>limite?'Vencido':'Pendente';
     return 'Pendente';
   }
-  function isVencida(s){ if(s.status==='Concluído') return false; if(!s.dataPrevistaEfetiva) return false; return now()>s.dataPrevistaEfetiva; }
+  function isVencida(s){
+    if(s.status==='Concluído') return false;
+    const limite=prazoLimite(s);
+    return !!limite && now()>limite;
+  }
   function applyFilters(items,f={}){
     let r=items;
-    // A data específica tem prioridade sobre o período macro. Ao limpar a data, o período anterior volta a valer.
+    // A data de abertura específica tem prioridade sobre o período macro. Ao limpar, o período anterior volta a valer.
     if(f.dataExata){
-      r=r.filter(s=>Utils.dateKey(s.dataAbertura)===f.dataExata || Utils.dateKey(s.dataConclusao)===f.dataExata);
+      r=r.filter(s=>Utils.dateKey(s.dataAbertura)===f.dataExata);
     } else if(f.periodo&&f.periodo!=='all'){
       const cutoff=Utils.addDays(Utils.startOfDay(now()),-Number(f.periodo));
       r=r.filter(s=>s.dataAbertura&&s.dataAbertura>=cutoff);
@@ -992,9 +1013,14 @@ const Calculations = (() => {
     const vencemHoje=items.filter(s=>{ if(s.status==='Concluído') return false; if(!s.dataPrevistaEfetiva) return false; return Utils.dateKey(s.dataPrevistaEfetiva)===Utils.dateKey(now()); }).length;
     const atrasos=items.filter(s=>{
       const ca=s.status==='Concluído'&&s.situacaoPrazo==='Atrasado'&&s.dataConclusao&&s.dataPrevistaEfetiva;
-      const av=(s.status==='Aberto'||s.status==='Em Andamento')&&s.dataPrevistaEfetiva&&now()>s.dataPrevistaEfetiva;
+      const limite=s.dataPrevistaEfetiva?Utils.endOfDay(s.dataPrevistaEfetiva):null;
+      const av=(s.status==='Aberto'||s.status==='Em Andamento')&&limite&&now()>limite;
       return ca||av;
-    }).map(s=>{ const f=s.dataConclusao||now(); return Math.max(1,Math.ceil(Utils.diffMs(s.dataPrevistaEfetiva,f)/86400000)); });
+    }).map(s=>{
+      const limite=Utils.endOfDay(s.dataPrevistaEfetiva);
+      const f=s.dataConclusao||now();
+      return Math.max(1,Math.ceil(Utils.diffMs(limite,f)/86400000));
+    });
     const buckets={'1 dia':0,'2-3 dias':0,'4-7 dias':0,'> 7 dias':0};
     atrasos.forEach(d=>{ if(d<=1) buckets['1 dia']++; else if(d<=3) buckets['2-3 dias']++; else if(d<=7) buckets['4-7 dias']++; else buckets['> 7 dias']++; });
     return { noPrazo,atrasado,antecipado, pctNoPrazo:noPrazo/total, pctAtrasado:atrasado/total, pctAntecipado:antecipado/total, vencemHoje, buckets };
@@ -1225,7 +1251,7 @@ const CrossFilter = (() => {
     selectedDate=value?String(value):'';
     syncDateControl();
     if(shouldNotify) notify();
-    if(showToast) Utils.toast(selectedDate?`Dia filtrado: ${selectedDate.split('-').reverse().join('/')}`:'Filtro de dia removido','info',2200);
+    if(showToast) Utils.toast(selectedDate?`Abertura filtrada: ${selectedDate.split('-').reverse().join('/')}`:'Filtro de abertura removido','info',2200);
   };
   return {
     apply(field,value){
@@ -1361,7 +1387,7 @@ const App = (() => {
     const labels={ transportador:'Transportador', solicitante:'Solicitante', responsavel:'Responsável', status:'Status', tipo:'Urgência', ruptura:'Ruptura' };
     const periodLabels={ '7':'Últimos 7 dias','15':'Últimos 15 dias','90':'Últimos 90 dias','all':'Todo o período' };
     if(f.periodo && f.periodo!=='30' && periodLabels[f.periodo]) chips.push(chip('Período',periodLabels[f.periodo],'filtroPeriodo','30'));
-    if(f.dataExata){ const [y,m,d]=f.dataExata.split('-'); chips.push(`<span class="chip"><span class="chip-key">Dia selecionado</span><b>${d}/${m}/${y}</b><button data-clear-date="1" aria-label="Remover filtro de dia"><i class="bi bi-x"></i></button></span>`); }
+    if(f.dataExata){ const [y,m,d]=f.dataExata.split('-'); chips.push(`<span class="chip"><span class="chip-key">Abertura</span><b>${d}/${m}/${y}</b><button data-clear-date="1" aria-label="Remover filtro de data de abertura"><i class="bi bi-x"></i></button></span>`); }
     ['transportador','solicitante','responsavel','status','tipo'].forEach(k=>{ if(f[k]) chips.push(chip(labels[k],f[k],'filtro'+cap(k),'')); });
     if(f.ruptura) chips.push(chip('Ruptura', f.ruptura==='SIM'?'Com ruptura':'Sem ruptura','filtroRuptura',''));
     if(f.search) chips.push(chip('Busca',`"${f.search}"`,'tableSearch',''));
