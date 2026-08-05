@@ -386,7 +386,6 @@ body {
           </div>
         </div>
         <div class="topbar-actions">
-          <button class="btn btn-primary btn-sm" id="btnDownload" title="Baixar este dashboard como arquivo HTML"><i class="bi bi-download"></i> Baixar HTML</button>
           <button class="btn btn-icon" id="btnRefresh" title="Atualizar dados"><i class="bi bi-arrow-clockwise"></i></button>
         </div>
       </div>
@@ -1036,21 +1035,6 @@ const App = (() => {
     document.getElementById('sidebarToggle')?.addEventListener('click',()=>document.getElementById('sidebar')?.classList.toggle('collapsed'));
     document.getElementById('mobileMenu')?.addEventListener('click',()=>document.getElementById('sidebar')?.classList.toggle('open'));
     document.getElementById('btnRefresh')?.addEventListener('click',()=>refresh(true));
-    document.getElementById('btnDownload')?.addEventListener('click',async(e)=>{
-      const btn=e.currentTarget; const original=btn.innerHTML;
-      btn.disabled=true; btn.innerHTML='<i class="bi bi-hourglass-split"></i> Gerando...';
-      try{
-        const res=await fetch(window.location.pathname,{cache:'no-store'});
-        const html=await res.text();
-        const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');
-        a.href=url; a.download='eficacia-entrega.html';
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(()=>URL.revokeObjectURL(url),1500);
-      }catch(err){ alert('Não foi possível gerar o arquivo. Tente novamente.'); }
-      finally{ btn.disabled=false; btn.innerHTML=original; }
-    });
     document.getElementById('tableSearch')?.addEventListener('input',Utils.debounce(()=>applyFiltersAndRender(),260));
     FILTER_IDS.forEach(id=>document.getElementById(id)?.addEventListener('change',applyFiltersAndRender));
     document.getElementById('btnExportCSV')?.addEventListener('click',()=>TableModule.exportCSV());
