@@ -4,7 +4,7 @@
  */
 const CONFIG = {
   DATA_SOURCE: 'apps-script',
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwPGDGu52VOGdF5qdl1WUVxiEYsuD6Zqisz8zvbbLxZ/dev',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyD0071pyIgbbg0rYCk6hlR6Y8WluFLVVVlT48Cfd3l9B9iCgFu4jGDXGxOyjwLMkZS6A/exec',
   FETCH_TIMEOUT_MS: 20000,
   AUTO_REFRESH_MS: 0, // desativado por solicitação
   DIAS_PRAZO_PADRAO: 5,
