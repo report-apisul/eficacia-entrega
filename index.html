@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="BI Eficácia na Entrega – Acompanhamento de Solicitações | Apisul" />
+<meta name="theme-color" content="#0b1f38" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1f38'/%3E%3Cpath d='M18 34l10 10 18-20' stroke='%232563eb' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <title>Eficácia na Entrega | Apisul</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -104,7 +107,8 @@ body {
   box-shadow: 0 4px 14px rgba(37,99,235,.45);
 }
 .logo-icon img {
-  width: 24px; height: 24px; object-fit: contain;
+  width: 34px;
+  height: 34px; object-fit: contain;
 }
 .logo-text { display: flex; flex-direction: column; line-height: 1.15; transition: opacity var(--transition); white-space: nowrap; }
 .logo-text strong { font-size: 1rem; font-weight: 800; letter-spacing: -.01em; }
@@ -487,6 +491,49 @@ body {
   .metric-grid { grid-template-columns: 1fr; }
   .form-select { min-width: 108px; }
 }
+
+/* ---------------- Acessibilidade: foco visível (WCAG 2.4.7) ---------------- */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+.nav-item:focus-visible, .kpi-card.clickable:focus-visible, th[data-sort]:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px;
+}
+.sidebar :focus-visible { outline-color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+
+/* ---------------- Skeleton loading (refresh silencioso) ---------------- */
+@keyframes shimmer { 0%{background-position:-300px 0;} 100%{background-position:300px 0;} }
+.is-refreshing .kpi-value,
+.is-refreshing .metric-value { color: transparent !important; position: relative; border-radius: 6px; background: linear-gradient(90deg,#e7e9ee 25%,#f2f4f7 37%,#e7e9ee 63%); background-size: 300px 100%; animation: shimmer 1.2s ease infinite; }
+.is-refreshing .chart-box canvas { opacity: .25; filter: blur(1px); transition: opacity .25s; }
+.refresh-badge { display:inline-flex; align-items:center; gap:.3rem; font-size:.68rem; font-weight:600; color: var(--accent); opacity:0; transition: opacity .2s; }
+.refresh-badge.show { opacity:1; }
+.refresh-badge .spin-sm { width:11px; height:11px; border:2px solid var(--accent-soft); border-top-color: var(--accent); border-radius:50%; animation: spin .7s linear infinite; }
+
+/* ---------------- Empty state em gráficos ---------------- */
+.chart-box { position: relative; }
+.chart-empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.4rem; color: var(--muted-2); text-align:center; padding:1rem; }
+.chart-empty i { font-size:1.6rem; }
+.chart-empty span { font-size:.78rem; font-weight:500; }
+
+/* ---------------- Auto-refresh toggle ---------------- */
+.auto-refresh-toggle { display:flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:600; color: var(--muted); user-select:none; cursor:pointer; }
+.switch { position:relative; width:34px; height:19px; flex-shrink:0; }
+.switch input { opacity:0; width:100%; height:100%; margin:0; cursor:pointer; position:absolute; z-index:1; }
+.switch .track { position:absolute; inset:0; background: var(--line-strong); border-radius:20px; transition: background var(--transition); }
+.switch .thumb { position:absolute; top:2px; left:2px; width:15px; height:15px; background:#fff; border-radius:50%; box-shadow: var(--shadow-sm); transition: transform var(--transition); }
+.switch input:checked ~ .track { background: var(--accent); }
+.switch input:checked ~ .thumb { transform: translateX(15px); }
+.switch input:focus-visible ~ .track { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------------- Print (fallback PDF via navegador) ---------------- */
+@media print {
+  .sidebar, .topbar-actions, .filter-bar, .chips, .card-actions, .mobile-menu, .loading-overlay, .toast-container { display:none !important; }
+  .main-content { margin-left:0 !important; width:100% !important; }
+  body { overflow: visible !important; height:auto !important; }
+  .content-wrapper { overflow:visible !important; }
+}
 </style>
 </head>
 <body>
@@ -522,6 +569,11 @@ body {
           </div>
         </div>
         <div class="topbar-actions">
+          <span class="refresh-badge" id="refreshBadge"><span class="spin-sm"></span> Atualizando…</span>
+          <label class="auto-refresh-toggle" title="Atualizar dados automaticamente a cada 5 minutos">
+            <span class="switch"><input type="checkbox" id="autoRefreshToggle"><span class="track"></span><span class="thumb"></span></span>
+            Auto
+          </label>
           <img class="brand-mondelez" src="https://raw.githubusercontent.com/repositorio-apisul/mondelez/refs/heads/main/Logo%20Mondelez%20Roxo.png" alt="Mondelez">
           <button class="btn btn-icon" id="btnRefresh" title="Atualizar dados"><i class="bi bi-arrow-clockwise"></i></button>
         </div>
@@ -603,6 +655,10 @@ body {
             <div class="kpi-top"><span class="kpi-label">No Prazo</span><span class="kpi-icon bg-teal"><i class="bi bi-check-lg"></i></span></div>
             <span class="kpi-value" id="kpiNoPrazo">—</span>
           </div>
+          <div class="kpi-card">
+            <div class="kpi-top"><span class="kpi-label">Fora do Prazo</span><span class="kpi-icon bg-red"><i class="bi bi-x-lg"></i></span></div>
+            <span class="kpi-value" id="kpiForaPrazo">—</span>
+          </div>
         </div>
 
         <div class="charts-row">
@@ -672,6 +728,10 @@ body {
           <div class="card"><div class="card-header"><h3>Rupturas</h3><span class="hint-click"><i class="bi bi-hand-index"></i>clique p/ filtrar</span></div><div class="card-body"><div class="chart-box chart-box-sm"><canvas id="chartRuptura"></canvas></div></div></div>
         </div>
         <div class="card mt-3">
+          <div class="card-header"><h3>Desempenho por Responsável</h3><span class="hint-click"><i class="bi bi-hand-index"></i>clique p/ filtrar</span></div>
+          <div class="card-body"><div class="chart-box"><canvas id="chartResponsaveis"></canvas></div></div>
+        </div>
+        <div class="card mt-3">
           <div class="card-header"><h3>Tempo Médio de Atendimento</h3></div>
           <div class="card-body"><div class="metric-grid" style="grid-template-columns:repeat(4,1fr)">
             <div class="metric-item"><span class="metric-label">Tempo Médio</span><strong class="metric-value" id="tempoMedio">—</strong></div>
@@ -705,6 +765,7 @@ body {
               <div class="search-box"><i class="bi bi-search"></i><input type="text" id="tableSearch" placeholder="Buscar..." /></div>
               <button class="btn btn-outline btn-sm" id="btnExportCSV"><i class="bi bi-filetype-csv"></i> CSV</button>
               <button class="btn btn-outline btn-sm" id="btnExportExcel"><i class="bi bi-file-earmark-excel"></i> Excel</button>
+              <button class="btn btn-outline btn-sm" id="btnExportPDF"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
             </div>
           </div>
           <div class="card-body p-0">
@@ -747,7 +808,13 @@ body {
           <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Com Prazo Definido</span><span class="kpi-icon bg-cyan"><i class="bi bi-calendar-check"></i></span></div><span class="kpi-value" id="filaComPrazo">—</span></div>
         </div>
         <div class="card">
-          <div class="card-header"><h3>Fila de Atendimento (ordem de abertura)</h3><span class="badge badge-info" id="filaBadge">0 pendentes</span></div>
+          <div class="card-header">
+            <h3>Fila de Atendimento (ordem de abertura)</h3>
+            <div class="card-actions">
+              <span class="badge badge-info" id="filaBadge">0 pendentes</span>
+              <button class="btn btn-outline btn-sm" id="btnExportFilaCSV"><i class="bi bi-filetype-csv"></i> CSV</button>
+            </div>
+          </div>
           <div class="card-body p-0"><div class="table-wrapper"><table class="data-table"><thead><tr>
             <th>Posição</th><th>Nº</th><th>Abertura</th><th>Solicitante</th><th>Transportador</th><th>Urgência</th><th>Status</th><th>À Frente</th><th>Data Prevista</th><th>Fila na Abertura</th><th>Situação</th>
           </tr></thead><tbody id="filaBody"></tbody></table></div></div>
@@ -761,6 +828,8 @@ body {
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.1/dist/jspdf.plugin.autotable.min.js"></script>
   <script>
 /* ============================================================ CONFIG */
 const CONFIG = {
@@ -895,14 +964,15 @@ const DataService = (() => {
     if(!json.sucesso && !Array.isArray(json.dados)) throw new Error(json.erro||'A API retornou uma resposta inválida.');
     return (json.dados||[]).map(normalizeRow);
   }
-  async function load(){
-    Utils.showLoading(true,'Conectando à planilha...'); lastError=null;
+  async function load(silent=false){
+    if(!silent) Utils.showLoading(true,'Conectando à planilha...');
+    lastError=null;
     try{
       const data=await fetchAppsScript();
       if(!Array.isArray(data)||data.length===0) throw new Error('Nenhuma solicitação encontrada na planilha.');
       rawData=data; lastFetch=new Date(); return rawData.map(r=>({...r}));
     }catch(err){ console.error('[v0][DataService]',err); rawData=[]; lastFetch=null; lastError=err.message||'Erro desconhecido'; throw err; }
-    finally{ Utils.showLoading(false); }
+    finally{ if(!silent) Utils.showLoading(false); }
   }
   return { load, getLastFetch:()=>lastFetch, getLastError:()=>lastError };
 })();
@@ -1052,6 +1122,15 @@ const Charts = (() => {
     }
   };
   function destroy(id){ if(instances[id]){ instances[id].destroy(); delete instances[id]; } }
+  function toggleEmpty(canvas,isEmpty){
+    if(!canvas) return;
+    const box=canvas.closest('.chart-box'); if(!box) return;
+    let el=box.querySelector('.chart-empty');
+    if(isEmpty){
+      canvas.style.visibility='hidden';
+      if(!el){ el=document.createElement('div'); el.className='chart-empty'; el.innerHTML='<i class="bi bi-bar-chart-line"></i><span>Sem dados para este período/filtro</span>'; box.appendChild(el); }
+    } else { canvas.style.visibility='visible'; el?.remove(); }
+  }
   function getCtx(id){ const c=document.getElementById(id); if(!c) return null; destroy(id); return c.getContext('2d'); }
   function withField(inst,field){ if(inst) inst.$crossFilterField=field; return inst; }
 
@@ -1082,6 +1161,7 @@ const Charts = (() => {
 
   function evolucao(id,series){
     const ctx=getCtx(id); if(!ctx) return;
+    toggleEmpty(ctx.canvas, !series.some(s=>s.abertas||s.concluidas||s.backlog));
     const selectedDate=window.BI_CrossFilter?.get('dataExata')||'';
     const pointRadius=series.map(s=>s.key===selectedDate?7:3);
     const pointBorderWidth=series.map(s=>s.key===selectedDate?3:1);
@@ -1114,11 +1194,13 @@ const Charts = (() => {
   }
   function statusDonut(id,kpis){
     const ctx=getCtx(id); if(!ctx) return;
+    toggleEmpty(ctx.canvas, !(kpis.abertas||kpis.andamento||kpis.concluidas));
     instances[id]=withField(new Chart(ctx,{ type:'doughnut', data:{ labels:['Aberto','Em Andamento','Concluído'], datasets:[{ data:[kpis.abertas,kpis.andamento,kpis.concluidas], backgroundColor:[C.blue,C.cyan,C.green], borderWidth:0, hoverOffset:8 }] },
       options:{ ...base, cutout:'66%', plugins:{...base.plugins,legend:{position:'bottom',labels:{font:{size:11},color:'#6b7280',usePointStyle:true,padding:14}}} } }),'status');
   }
   function horizontalBar(id,groups,color=C.blue,limit=8,field=null){
     const ctx=getCtx(id); if(!ctx) return;
+    toggleEmpty(ctx.canvas, !groups.length);
     const data=groups.slice(0,limit);
     instances[id]=withField(new Chart(ctx,{ type:'bar', data:{ labels:data.map(g=>g.nome), datasets:[{ label:'Quantidade', data:data.map(g=>g.qtd), backgroundColor:color, hoverBackgroundColor:C.navy, borderRadius:5, barPercentage:.68 }] },
       options:{ ...base, indexAxis:'y', plugins:{ ...base.plugins, legend:{display:false}, tooltip:{ ...base.plugins.tooltip, callbacks:{ afterLabel:(c)=>{ const g=data[c.dataIndex]; return g?`${Utils.formatPercent(g.pct)} do total`:''; } } } },
@@ -1126,6 +1208,7 @@ const Charts = (() => {
   }
   function pie(id,groups,limit=6,field=null){
     const ctx=getCtx(id); if(!ctx) return;
+    toggleEmpty(ctx.canvas, !groups.length);
     const data=groups.slice(0,limit);
     instances[id]=withField(new Chart(ctx,{ type:'doughnut', data:{ labels:data.map(g=>g.nome), datasets:[{ data:data.map(g=>g.qtd), backgroundColor:C.palette.slice(0,data.length), borderWidth:0, hoverOffset:8 }] },
       options:{ ...base, cutout:'56%', plugins:{...base.plugins,legend:{position:'bottom',labels:{font:{size:10},color:'#6b7280',usePointStyle:true,padding:10}}} } }),field);
@@ -1221,6 +1304,26 @@ const TableModule = (() => {
     const ws=XLSX.utils.json_to_sheet(data), wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Solicitações'); XLSX.writeFile(wb,`solicitacoes_${Utils.dateKey(new Date())}.xlsx`); Utils.toast('Excel exportado','success');
   }
   function downloadBlob(blob,filename){ const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+  function exportPDF(){
+    const sorted=getSorted(); if(!sorted.length){ Utils.toast('Nenhum dado para exportar','info'); return; }
+    const jsPDFCtor=window.jspdf?.jsPDF; if(!jsPDFCtor||!window.jspdf){ Utils.toast('Biblioteca PDF não carregada.','error'); return; }
+    const doc=new jsPDFCtor({ orientation:'landscape', unit:'pt', format:'a4' });
+    doc.setFontSize(13); doc.setTextColor(11,31,56); doc.text('Eficácia na Entrega — Apisul',40,32);
+    doc.setFontSize(9); doc.setTextColor(107,114,128); doc.text(`Exportado em ${Utils.formatDate(new Date(),true)} • ${sorted.length} solicitações`,40,47);
+    const head=[['Nº','Abertura','Solicitante','Transportador','Urgência','Status','Responsável','Prevista','Conclusão','Prazo','Pos. Fila']];
+    const body=sorted.map(s=>[s.numero||'—',Utils.formatDate(s.dataAbertura,true),s.solicitante,s.transportador,s.tipo,s.status,s.responsavel||'—',Utils.formatDate(s.dataPrevistaEfetiva),Utils.formatDate(s.dataConclusao,true),s.situacaoPrazo,s.posicaoFila??'—']);
+    doc.autoTable({ head,body, startY:58, styles:{ fontSize:7.5, cellPadding:4 }, headStyles:{ fillColor:[11,31,56], textColor:255 }, alternateRowStyles:{ fillColor:[246,248,252] }, margin:{ left:40,right:40 } });
+    doc.save(`solicitacoes_${Utils.dateKey(new Date())}.pdf`); Utils.toast('PDF exportado','success');
+  }
+  function exportFilaCSV(filaItems){
+    if(!filaItems||!filaItems.length){ Utils.toast('Fila vazia — nada para exportar','info'); return; }
+    const headers=['Posição','Número','Data Abertura','Solicitante','Transportador','Urgência','Status','Qtd à Frente','Data Prevista','Fila na Abertura','Situação'];
+    const lines=[headers.join(';')];
+    filaItems.forEach((s,idx)=>{ const pos=idx+1; const sit=s.vencida?'Vencido':s.dataPrimeiraAnalise?'Em análise':'Aguardando';
+      lines.push([pos,s.numero,Utils.formatDate(s.dataAbertura,true),s.solicitante,s.transportador,s.tipo,s.status,pos-1,Utils.formatDate(s.dataPrevistaEfetiva),s.filaAbertura??'',sit].join(';')); });
+    const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+    downloadBlob(blob,`fila_atendimento_${Utils.dateKey(new Date())}.csv`); Utils.toast('CSV da fila exportado','success');
+  }
   function renderFila(filaItems){
     const tbody=document.getElementById('filaBody'), badge=document.getElementById('filaBadge'); if(!tbody) return;
     if(badge) badge.textContent=`${filaItems.length} pendentes`;
@@ -1232,7 +1335,10 @@ const TableModule = (() => {
       return `<tr class="${s.vencida?'row-alert':''}"><td><strong>#${pos}</strong></td><td>${Utils.escapeHtml(s.numero)}</td><td>${Utils.formatDate(s.dataAbertura,true)}</td><td>${Utils.escapeHtml(s.solicitante)}</td><td>${Utils.escapeHtml(s.transportador)}</td><td>${Utils.escapeHtml(s.tipo)}</td><td><span class="badge-status status-${cssStatus(s.status)}">${s.status}</span></td><td>${pos-1}</td><td>${Utils.formatDate(s.dataPrevistaEfetiva)}${s.prazoManual?'':' *'}</td><td>${s.filaAbertura??'—'}</td><td>${sit}</td></tr>`;
     }).join('');
   }
-  return { setData,sort,bindHeaderSort,exportCSV,exportExcel,renderFila,render };
+  let lastFilaItems=[];
+  const _renderFila=renderFila;
+  renderFila=function(filaItems){ lastFilaItems=filaItems||[]; _renderFila(filaItems); };
+  return { setData,sort,bindHeaderSort,exportCSV,exportExcel,exportPDF,exportFilaCSV:()=>exportFilaCSV(lastFilaItems),renderFila,render };
 })();
 
 /* ============================================================ CROSS FILTER */
@@ -1282,7 +1388,19 @@ const App = (() => {
   const sectionTitles={ dashboard:'Dashboard', evolucao:'Evolução Diária', analises:'Análises', prazos:'Cumprimento de Prazos', tabela:'Detalhamento', fila:'Fila de Atendimento' };
   const sectionSubs={ dashboard:'Visão geral das solicitações', evolucao:'Abertas, concluídas e backlog no tempo', analises:'Distribuições e tempos de atendimento', prazos:'Aderência aos prazos planejados', tabela:'Lista completa e exportação', fila:'Pendências na ordem de abertura' };
 
-  async function init(){ bindUI(); CrossFilter.syncDateControl(); CrossFilter.subscribe(applyFiltersAndRender); await refresh(); }
+  let autoTimer=null; const AUTO_REFRESH_MS=5*60*1000; // 5 minutos — atualização automática (indicadores próximos de tempo real)
+
+  async function init(){
+    bindUI(); CrossFilter.syncDateControl(); CrossFilter.subscribe(applyFiltersAndRender);
+    await refresh();
+    toggleAutoRefresh(document.getElementById('autoRefreshToggle')?.checked!==false);
+  }
+
+  function toggleAutoRefresh(on){
+    if(autoTimer){ clearInterval(autoTimer); autoTimer=null; }
+    if(on) autoTimer=// Auto refresh desabilitado
+// setInterval(()=>refresh(false,true),AUTO_REFRESH_MS);
+  }
 
   function bindUI(){
     document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',e=>{ e.preventDefault(); navigateTo(item.dataset.section); }));
@@ -1295,6 +1413,9 @@ const App = (() => {
     FILTER_IDS.forEach(id=>document.getElementById(id)?.addEventListener('change',applyFiltersAndRender));
     document.getElementById('btnExportCSV')?.addEventListener('click',()=>TableModule.exportCSV());
     document.getElementById('btnExportExcel')?.addEventListener('click',()=>TableModule.exportExcel());
+    document.getElementById('btnExportPDF')?.addEventListener('click',()=>TableModule.exportPDF());
+    document.getElementById('btnExportFilaCSV')?.addEventListener('click',()=>TableModule.exportFilaCSV());
+    document.getElementById('autoRefreshToggle')?.addEventListener('change',e=>toggleAutoRefresh(e.target.checked));
     TableModule.bindHeaderSort();
     document.querySelectorAll('[data-filter-status]').forEach(el=>el.addEventListener('click',()=>toggleFilter('filtroStatus',el.dataset.filterStatus)));
     document.querySelectorAll('[data-filter-ruptura]').forEach(el=>el.addEventListener('click',()=>toggleFilter('filtroRuptura',el.dataset.filterRuptura)));
@@ -1308,8 +1429,9 @@ const App = (() => {
 
   function navigateTo(section){
     currentSection=section;
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    document.querySelector(`.nav-item[data-section="${section}"]`)?.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>{ n.classList.remove('active'); n.removeAttribute('aria-current'); });
+    const activeNav=document.querySelector(`.nav-item[data-section="${section}"]`);
+    activeNav?.classList.add('active'); activeNav?.setAttribute('aria-current','page');
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     document.getElementById(`section-${section}`)?.classList.add('active');
     document.getElementById('pageTitle').textContent=sectionTitles[section]||'Dashboard';
@@ -1318,18 +1440,23 @@ const App = (() => {
     renderSection(section);
   }
 
-  async function refresh(manual=false){
+  async function refresh(manual=false,silent=false){
+    const badge=document.getElementById('refreshBadge');
+    if(silent){ document.body.classList.add('is-refreshing'); badge?.classList.add('show'); }
     try{
-      const raw=await DataService.load();
+      const raw=await DataService.load(silent);
       allData=Calculations.enrich(raw);
       seedFilterOptions();
       applyFiltersAndRender();
       updateLastFetch(); hideErrorBanner();
       if(manual) Utils.toast('Dados atualizados com sucesso','success');
+      else if(silent) Utils.toast('Indicadores atualizados automaticamente','info',2000);
     }catch(err){
-      console.error('[v0]',err); allData=[]; filteredData=[];
-      showErrorBanner(err.message||'Não foi possível carregar os dados.');
-      Utils.toast('Problema de conexão com a planilha.','error',6000);
+      console.error('[v0]',err);
+      if(!silent){ allData=[]; filteredData=[]; showErrorBanner(err.message||'Não foi possível carregar os dados.'); }
+      Utils.toast(silent?'Falha na atualização automática — mantendo últimos dados.':'Problema de conexão com a planilha.','error',6000);
+    } finally {
+      document.body.classList.remove('is-refreshing'); badge?.classList.remove('show');
     }
   }
 
@@ -1432,6 +1559,7 @@ const App = (() => {
     setText('kpiVencidas',k.vencidas); setText('kpiRupturas',k.rupturas);
     setText('kpiTempoMedio',Utils.formatDuration(k.tempoMedioMs));
     setText('kpiNoPrazo',k.pctNoPrazo!=null?Utils.formatPercent(k.pctNoPrazo):'—');
+    setText('kpiForaPrazo',k.pctForaPrazo!=null?Utils.formatPercent(k.pctForaPrazo):'—');
     setText('kpiFilaMedia',k.filaMedia!=null?k.filaMedia.toFixed(1):'—'); setText('kpiFilaMin',k.filaMin??'—'); setText('kpiFilaMax',k.filaMax??'—');
     setText('kpiPrazoMedio',k.prazoMedio!=null?`${k.prazoMedio.toFixed(1)} d`:'—'); setText('kpiPrazoMin',k.prazoMin!=null?`${k.prazoMin} d`:'—'); setText('kpiPrazoMax',k.prazoMax!=null?`${k.prazoMax} d`:'—');
     const status=getFilters().status;
@@ -1463,6 +1591,7 @@ const App = (() => {
     Charts.horizontalBar('chartTransportadoresFull',Calculations.groupBy(filteredData,'transportador'),CONFIG.CHART_COLORS.blueMid,10,'transportador');
     Charts.pie('chartTipos',Calculations.groupBy(filteredData,'tipo'),6,'tipo');
     Charts.rupturaBar('chartRuptura',kpis.rupturas,filteredData.length-kpis.rupturas);
+    Charts.horizontalBar('chartResponsaveis',Calculations.groupBy(filteredData,'responsavel'),CONFIG.CHART_COLORS.cyan,10,'responsavel');
     setText('tempoMedio',Utils.formatDuration(tempos.tempoMedio)); setText('tempoMax',Utils.formatDuration(tempos.tempoMax));
     setText('tempoMin',Utils.formatDuration(tempos.tempoMin)); setText('tempoPrimeiraAnalise',Utils.formatDuration(tempos.tempoPrimeiraAnalise));
   }

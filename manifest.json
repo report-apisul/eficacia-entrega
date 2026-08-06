@@ -1,0 +1,18 @@
+{
+  "name": "Eficácia na Entrega – Apisul",
+  "short_name": "Efic. Entrega",
+  "description": "BI de acompanhamento de solicitações de análise – Apisul",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f5f7",
+  "theme_color": "#0b1f38",
+  "orientation": "landscape-primary",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/repositorio-apisul/apisul/refs/heads/main/logo-piscina-branca.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
