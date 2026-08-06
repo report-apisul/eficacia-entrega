@@ -1,89 +1,124 @@
-# BI Eficácia na Entrega – Apisul
+# Eficácia na Entrega — BI de Solicitações (Apisul)
 
-Dashboard executivo para acompanhamento das solicitações registradas via Google Forms → Google Sheets (“Eficácia na Entrega”).
+Dashboard corporativo para acompanhamento em tempo quase real das solicitações de análise registradas via Google Forms / Google Sheets.
 
-## Como usar
+## Objetivo
 
-### 1. Produção (já configurado)
+Dar visibilidade operacional e gerencial sobre:
 
-O dashboard consome diretamente o Web App do Google Apps Script:
+- Volume de solicitações (abertas, em andamento, concluídas)
+- Fila de atendimento (fixa na abertura + fila dinâmica)
+- Prazos planejados e realizados
+- Cumprimento de SLA (no prazo / atrasado / antecipado)
+- Rupturas, urgência, transportadores e solicitantes
 
-```
-https://script.google.com/macros/s/AKfycbyD0071pyIgbbg0rYCk6hlR6Y8WluFLVVVlT48Cfd3l9B9iCgFu4jGDXGxOyjwLMkZS6A/exec
-```
+## Stack
 
-Basta abrir `index.html` em qualquer navegador moderno (ou hospedar em qualquer servidor estático / SharePoint / IIS).
+| Camada | Tecnologia |
+|--------|------------|
+| UI do BI | HTML5 + CSS3 + JavaScript (ES2024) autocontido |
+| Gráficos | Chart.js 4 |
+| Exportação | CSV nativo, Excel (SheetJS), PDF via impressão do navegador |
+| Dados | Google Sheets → Google Apps Script (JSON) |
+| Shell (opcional) | Next.js 16 + Tailwind (redireciona para o HTML estático) |
 
-### 2. Demonstração offline
+O arquivo principal do painel é:
 
-Em `js/config.js` altere:
-
-```js
-DATA_SOURCE: 'sample',
-```
-
-### 3. Outras fontes
-
-- **CSV publicado**: `DATA_SOURCE: 'csv'` + `CSV_URL`
-- **Google Sheets API**: `DATA_SOURCE: 'sheets-api'` + chave e ID
-
-## Mapeamento de colunas (planilha real)
-
-| Campo interno       | Cabeçalho na planilha                      |
-|---------------------|--------------------------------------------|
-| numero              | Codigo da Análise                          |
-| dataAbertura        | Carimbo de data/hora                       |
-| solicitante         | Nome do solicitante                        |
-| transportador       | Qual transportadora?                       |
-| responsavel         | Responsável Mondelez pela Solicitação?     |
-| tipo                | Nivel de urgência                          |
-| filaAbertura        | Fila Fixa                                  |
-| dataPrevista        | Previsão de Entrega                       |
-| dataConclusao       | Data da Conclusão                          |
-| observacoes         | OBSERVAÇÃO                                 |
-
-**Status** é derivado automaticamente:
-- Possui **Data da Conclusão** → `Concluído`
-- Possui Código / Previsão / Fila Fixa → `Em Andamento`
-- Caso contrário → `Aberto`
-
-## Regras de negócio implementadas
-
-- **Fila em tempo real**: solicitações abertas/em andamento ordenadas por data de abertura. Posição e “à frente” recalculados a cada atualização.
-- **Data Prevista padrão**: enquanto não preenchida → Abertura + 5 dias.
-- **Data Prevista manual**: quando o Fernando preenche, substitui o cálculo.
-- **Fila Fixa (Fila na Abertura)**: valor histórico gravado na 1ª análise; nunca recalculado.
-- **Situação do prazo**: No Prazo | Atrasado | Antecipado (< 24h) | Vencido | Pendente.
-
-## Estrutura
-
-```
-bi-solicitacoes/
-├── index.html
-├── css/styles.css
-├── js/
-│   ├── config.js          ← fonte de dados e mapeamento
-│   ├── utils.js
-│   ├── data-service.js    ← Apps Script / CSV / sample
-│   ├── calculations.js    ← regras de negócio + fila
-│   ├── charts.js
-│   ├── table.js
-│   └── app.js
-└── README.md
-```
-
-## Atualização automática
-
-Por padrão a cada 5 minutos (`AUTO_REFRESH_MS` em `config.js`). Use `0` para desativar.
-
-## Exportação
-
-A tabela detalhada exporta para CSV e Excel (.xlsx) com todos os campos calculados.
+- `index.html` (raiz do projeto)
+- `public/eficacia-entrega.html` (cópia para o redirect do Next)
 
 ## Identidade visual
 
-- Azul Marinho (`#0a2540`) – cor principal
-- Branco – fundo e cards
-- Tons de azul e cinzas neutros
+- **Principal:** Azul-marinho `#0b1f38`
+- **Secundária:** Branco / cinzas neutros
+- **Apoio:** Tons de azul (`#2563eb`, cyan, teal)
+- Semântica: verde (ok), vermelho (atraso/ruptura), âmbar (alerta)
 
-Layout 100% responsivo (desktop, tablet e mobile).
+## Visões do painel
+
+1. **Dashboard** — KPIs executivos, evolução diária, status, top solicitantes/transportadores, fila na abertura, prazo planejado  
+2. **Evolução** — Aberturas × conclusões, backlog, **demanda × capacidade (~5/dia)**, **tendência % no prazo**  
+3. **Análises** — Por usuário, transportador, urgência, ruptura, **responsável**, **resumo de risco de atraso**, tempos médios  
+4. **Prazos** — No prazo / atrasado / antecipado / vencem hoje + distribuição de atraso  
+5. **Detalhamento** — Tabela completa com busca, ordenação, paginação, export CSV / Excel / PDF  
+6. **Fila** — Fila dinâmica ordenada por abertura, posição, à frente, **vence em**, **risco**
+
+## Regras de negócio (Fase 1)
+
+- Considerar solicitações com código de análise (pós pré-análise).
+- **Fila na abertura (Fila Fixa):** valor histórico gravado na planilha; não recalcula.
+- **Fila dinâmica:** pendentes ordenados por data de abertura; posição e “à frente” em tempo real no front.
+- **Data prevista:** se vazia, assume abertura + 5 dias (`DIAS_PRAZO_PADRAO`).
+- **Antecipado:** conclusão até 24h antes do limite (`ANTECIPADO_HORAS`).
+- Capacidade de referência operacional: **~5 solicitações/dia** (apenas referência visual).
+
+## Configuração da API
+
+No `index.html` (objeto `CONFIG`):
+
+```js
+APPS_SCRIPT_URL: 'https://script.google.com/macros/s/.../exec'
+FETCH_TIMEOUT_MS: 20000
+DIAS_PRAZO_PADRAO: 5
+ANTECIPADO_HORAS: 24
+COLUMN_MAP: { /* cabeçalhos da planilha */ }
+```
+
+Se os cabeçalhos da planilha mudarem, atualize `COLUMN_MAP`.
+
+## Como usar
+
+### Opção A — Abrir o HTML direto
+
+Abra `index.html` ou `public/eficacia-entrega.html` em um navegador moderno (Chrome, Edge, Firefox, Safari).
+
+> A origem da planilha precisa permitir CORS via Apps Script (`ContentService` com acesso adequado).
+
+### Opção B — Next.js
+
+```bash
+pnpm install
+pnpm dev
+```
+
+A home redireciona para `/eficacia-entrega.html`.
+
+## Filtros
+
+- Período (7 / 15 / 30 / 90 dias / todo)
+- Data de abertura exata
+- Transportador, Solicitante, Responsável, Status, Urgência, Ruptura
+- Chips de filtros ativos + clique em gráficos/KPIs para filtrar cruzado
+
+## Melhorias desta versão (V1)
+
+- Card **% Fora do Prazo** no dashboard
+- Gráfico **Demanda × Capacidade**
+- Gráfico **tendência % cumprimento de prazo**
+- Análise por **Responsável**
+- Painel de **risco de atraso** (vencidos / hoje / 1–3 dias)
+- Colunas **Vence em** e **Risco** na fila
+- Export **PDF** (impressão estilizada)
+- Polimento visual (glass leve, microinterações, empty states, focus rings)
+- Paginação padrão em **50** registros
+- Cópia do BI em `public/` alinhada ao redirect do Next
+
+## Fora de escopo (fases futuras)
+
+Conforme ata de 27/07/2026:
+
+- Recálculo automático de previsões
+- Projeções preditivas de capacidade
+- Alertas automáticos de risco
+- Triagem inteligente por eventos de viagem / alertas
+
+## Manutenção
+
+- Preferir editar o HTML estático e espelhar em `public/eficacia-entrega.html`.
+- Evitar duplicar regras de negócio: concentrar em `Calculations` e `CONFIG`.
+- Gráficos usam `destroy` antes de recriar (`Charts.getCtx`) para evitar vazamento de memória.
+
+## Contato / contexto
+
+Projeto interno Apisul — BI de Solicitações de Análises (Mondelez / operação).  
+Baseado na especificação e ata de reunião de julho/2026.
